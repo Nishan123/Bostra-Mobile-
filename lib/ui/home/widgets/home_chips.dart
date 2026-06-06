@@ -211,8 +211,8 @@ class _AnimatedChipState<T> extends State<_AnimatedChip<T>>
       builder: (context, _) {
         final t = _colorT.value;
         final bgColor = Color.lerp(
-          AppColors.whiteColor,
-          AppColors.blackColor,
+          AppColors.turnaryColor,
+          AppColors.primaryColor,
           t,
         )!;
         final contentColor = Color.lerp(
@@ -233,7 +233,6 @@ class _AnimatedChipState<T> extends State<_AnimatedChip<T>>
               decoration: BoxDecoration(
                 color: bgColor,
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: AppColors.blackColor, width: 1.0),
               ),
               child: Row(
                 spacing: widget.icon == null ? 0 : 8,

@@ -20,7 +20,10 @@ class HomeSearchBar extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.whiteColor,
           borderRadius: BorderRadius.circular(12.0),
-          border: Border.all(color: AppColors.primaryColor, width: 0.7),
+          border: Border.all(
+            color: AppColors.primaryColor.withAlpha(120),
+            width: 0.7,
+          ),
         ),
         child: Row(
           children: [
@@ -32,7 +35,7 @@ class HomeSearchBar extends StatelessWidget {
             Expanded(
               child: Text(
                 'Search “Organic Cafe”',
-                style: AppTextStyle.bodyText
+                style: AppTextStyle.bodyText,
               ),
             ),
 

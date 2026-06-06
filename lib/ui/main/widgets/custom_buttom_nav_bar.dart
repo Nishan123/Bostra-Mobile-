@@ -37,7 +37,7 @@ class _CustomButtomNavBarState extends State<CustomButtomNavBar> {
     return Container(
       decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(width: 0.6, color: AppColors.primaryColor.withGreen(120)),
+          top: BorderSide(width: 0.6, color: AppColors.primaryColor.withAlpha(100)),
         ),
         color: AppColors.whiteColor,
       ),
@@ -71,7 +71,7 @@ class _CustomButtomNavBarState extends State<CustomButtomNavBar> {
                     width: pillWidth,
                     height: _pillHeight,
                     decoration: BoxDecoration(
-                      color: AppColors.primaryColor,
+                      color: AppColors.primaryColor.withAlpha(180),
                       borderRadius: BorderRadius.circular(120),
                     ),
                   ),

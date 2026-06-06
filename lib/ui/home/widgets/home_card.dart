@@ -2,6 +2,9 @@ import 'dart:ui';
 
 import 'package:bostra/theme/app_colors.dart';
 import 'package:bostra/theme/app_text_style.dart';
+import 'package:bostra/widgets/avatars_with_count.dart';
+import 'package:bostra/widgets/fund_progress_bar.dart';
+import 'package:bostra/widgets/info_chip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 
@@ -38,7 +41,7 @@ class HomeCard extends StatelessWidget {
             clipBehavior: .hardEdge,
             width: double.infinity,
             decoration: BoxDecoration(
-              color: AppColors.black10,
+              color: AppColors.turnaryColor,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(22.1),
                 topRight: Radius.circular(22.1),
@@ -101,17 +104,7 @@ class HomeCard extends StatelessWidget {
                 ),
 
                 // fund progress
-                SliderTheme(
-                  data: SliderTheme.of(context).copyWith(
-                    trackHeight: 12,
-                    thumbShape: SliderComponentShape.noThumb, // no thumb dot
-                    overlayShape: SliderComponentShape.noOverlay,
-                    activeTrackColor: AppColors.primaryColor,
-                    inactiveTrackColor: AppColors.turnaryColor,
-                    trackShape: const RoundedRectSliderTrackShape(),
-                  ),
-                  child: Slider(value: 0.3, onChanged: (value) {}),
-                ),
+                FundProgressBar(),
 
                 // amount raised text
                 Row(
@@ -128,7 +121,7 @@ class HomeCard extends StatelessWidget {
 
                 Row(
                   children: [
-                    _stackedAvatarsWithCount(
+                    AvatarsWithCount(
                       imageUrls: [
                         "https://images.pexels.com/photos/10143324/pexels-photo-10143324.jpeg",
                         "https://images.pexels.com/photos/10143324/pexels-photo-10143324.jpeg",
@@ -136,19 +129,10 @@ class HomeCard extends StatelessWidget {
                         "https://images.pexels.com/photos/10143324/pexels-photo-10143324.jpeg",
                       ],
                       totalBackers: 4,
+                      avatarSize: 40,
                     ),
                     Spacer(),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.turnaryColor,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text("4 days left"),
-                    ),
+                    InfoChip(text: "4 days left",),
                   ],
                 ),
               ],
@@ -158,57 +142,7 @@ class HomeCard extends StatelessWidget {
       ),
     );
   }
-
-  Widget _stackedAvatarsWithCount({
-    required List<String> imageUrls,
-    required int totalBackers,
-    double avatarSize = 42,
-    double overlap = 18,
-  }) {
-    final visibleAvatars = imageUrls.take(3).toList();
-    final stackWidth =
-        avatarSize + (visibleAvatars.length - 1) * (avatarSize - overlap);
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: stackWidth,
-          height: avatarSize,
-          child: Stack(
-            children: List.generate(visibleAvatars.length, (i) {
-              return Positioned(
-                left: i * (avatarSize - overlap),
-                child: Container(
-                  width: avatarSize,
-                  height: avatarSize,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2.5),
-                  ),
-                  child: ClipOval(
-                    child: Image.network(
-                      visibleAvatars[i],
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, _, _) => Container(
-                        color: const Color.fromARGB(255, 121, 94, 94),
-                        child: const Icon(
-                          Icons.person,
-                          color: Color.fromARGB(255, 109, 109, 109),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Text('+$totalBackers Backers', style: AppTextStyle.h3),
-      ],
-    );
-  }
 }
+
+
+
