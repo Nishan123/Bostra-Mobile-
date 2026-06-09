@@ -1,4 +1,5 @@
 import 'package:bostra/theme/app_colors.dart';
+import 'package:bostra/ui/saved/widgets/saved_search_field.dart';
 import 'package:bostra/ui/saved/widgets/saved_startup_card.dart';
 import 'package:flutter/material.dart';
 
@@ -27,7 +28,9 @@ class SavedStartupScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            SizedBox(height: 12),
+            SizedBox(height: 28),
+            SavedSearchField(),
+            SizedBox(height: 24,),
             ListView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),

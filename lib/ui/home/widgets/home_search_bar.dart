@@ -35,7 +35,7 @@ class HomeSearchBar extends StatelessWidget {
             Expanded(
               child: Text(
                 'Search “Organic Cafe”',
-                style: AppTextStyle.bodyText,
+                style: AppTextStyle.bodyText1,
               ),
             ),
 

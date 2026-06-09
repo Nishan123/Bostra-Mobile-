@@ -1,12 +1,12 @@
 import 'package:bostra/theme/app_colors.dart';
 import 'package:bostra/theme/app_text_style.dart';
+import 'package:bostra/ui/investment/widdgets/investment_status.dart';
+import 'package:bostra/ui/investment/widdgets/p_l_indicator.dart';
 import 'package:bostra/widgets/avatars_with_count.dart';
-import 'package:bostra/widgets/fund_progress_bar.dart';
-import 'package:bostra/widgets/info_chip.dart';
 import 'package:flutter/material.dart';
 
-class SavedStartupCard extends StatelessWidget {
-  const SavedStartupCard({super.key});
+class MyInvestmentCard extends StatelessWidget {
+  const MyInvestmentCard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -54,31 +54,11 @@ class SavedStartupCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
-
-                  FundProgressBar(),
-                  const SizedBox(height: 4),
-
-                  Row(
-                    children: [
-                      Text(
-                        "Rs 20,000",
-                        style: AppTextStyle.normalText.copyWith(
-                          color: AppColors.blackColor.withAlpha(140),
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        "Rs 1,00,000",
-                        style: AppTextStyle.normalText.copyWith(
-                          color: AppColors.blackColor.withAlpha(140),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-
-                  InfoChip(text: "12 days left"),
+                  InvestmentStatusWidget(status: InvestmentStatus.active),
                   const SizedBox(height: 8),
+
+                  PLIndicator(diff: 12),
+                  const SizedBox(height: 4),
 
                   AvatarsWithCount(
                     imageUrls: const [

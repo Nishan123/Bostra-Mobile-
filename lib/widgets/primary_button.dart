@@ -7,6 +7,8 @@ class PrimaryButton extends StatelessWidget {
   final VoidCallback onTap;
   final Color? textColor;
   final bool isLoading;
+  final EdgeInsets? margin;
+
   const PrimaryButton({
     super.key,
     required this.text,
@@ -14,11 +16,13 @@ class PrimaryButton extends StatelessWidget {
     required this.onTap,
     this.textColor,
     this.isLoading = false,
+    this.margin,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
+      margin: margin,
       height: 50,
       width: MediaQuery.of(context).size.width,
       child: ElevatedButton(
