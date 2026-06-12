@@ -6,6 +6,7 @@ class CampaignTextfield extends StatelessWidget {
   final String label;
   final String hintText;
   final TextEditingController? controller;
+  final ValueChanged<String>? onChanged;
   final int maxLines;
   final TextInputType? keyboardType;
   final Widget? suffixIcon;
@@ -15,6 +16,7 @@ class CampaignTextfield extends StatelessWidget {
     required this.label,
     required this.hintText,
     this.controller,
+    this.onChanged,
     this.maxLines = 1,
     this.keyboardType,
     this.suffixIcon,
@@ -36,6 +38,7 @@ class CampaignTextfield extends StatelessWidget {
           const SizedBox(height: 6),
           TextField(
             controller: controller,
+            onChanged: onChanged,
             maxLines: maxLines,
             keyboardType: keyboardType,
             style: AppTextStyle.normalText.copyWith(

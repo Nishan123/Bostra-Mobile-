@@ -5,12 +5,14 @@ import 'package:flutter/material.dart';
 class ProjectionTextfield extends StatelessWidget {
   final String hintText;
   final TextEditingController? controller;
+  final ValueChanged<String>? onChanged;
   final int maxLines;
 
   const ProjectionTextfield({
     super.key,
     required this.hintText,
     this.controller,
+    this.onChanged,
     this.maxLines = 1,
   });
 
@@ -18,6 +20,7 @@ class ProjectionTextfield extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
+      onChanged: onChanged,
       maxLines: maxLines,
       style: AppTextStyle.normalText.copyWith(
         color: AppColors.blackColor,

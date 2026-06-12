@@ -7,11 +7,13 @@ import 'package:image_picker/image_picker.dart';
 
 class DocUploadBox extends StatefulWidget {
   final String docType;
+  final String? initialFilePath;
   final ValueChanged<File?>? onFilePicked;
 
   const DocUploadBox({
     super.key,
     required this.docType,
+    this.initialFilePath,
     this.onFilePicked,
   });
 
@@ -22,6 +24,26 @@ class DocUploadBox extends StatefulWidget {
 class _DocUploadBoxState extends State<DocUploadBox> {
   File? _pickedFile;
   final ImagePicker _picker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialFilePath != null && widget.initialFilePath!.isNotEmpty) {
+      _pickedFile = File(widget.initialFilePath!);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant DocUploadBox oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialFilePath != oldWidget.initialFilePath) {
+      setState(() {
+        _pickedFile = widget.initialFilePath != null && widget.initialFilePath!.isNotEmpty
+            ? File(widget.initialFilePath!)
+            : null;
+      });
+    }
+  }
 
   Future<void> _pickFile() async {
     final XFile? file = await _picker.pickImage(source: ImageSource.gallery);

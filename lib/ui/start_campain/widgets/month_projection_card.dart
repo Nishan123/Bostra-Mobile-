@@ -3,15 +3,66 @@ import 'package:bostra/theme/app_text_style.dart';
 import 'package:bostra/ui/start_campain/widgets/projection_textfield.dart';
 import 'package:flutter/material.dart';
 
-class MonthProjectionCard extends StatelessWidget {
+class MonthProjectionCard extends StatefulWidget {
   final int monthNumber;
   final String monthLabel;
+  final String initialObjectives;
+  final String initialGoals;
+  final String initialInitiative;
+  final ValueChanged<String>? onObjectivesChanged;
+  final ValueChanged<String>? onGoalsChanged;
+  final ValueChanged<String>? onInitiativeChanged;
 
   const MonthProjectionCard({
     super.key,
     required this.monthNumber,
     required this.monthLabel,
+    this.initialObjectives = '',
+    this.initialGoals = '',
+    this.initialInitiative = '',
+    this.onObjectivesChanged,
+    this.onGoalsChanged,
+    this.onInitiativeChanged,
   });
+
+  @override
+  State<MonthProjectionCard> createState() => _MonthProjectionCardState();
+}
+
+class _MonthProjectionCardState extends State<MonthProjectionCard> {
+  late final TextEditingController _objectivesController;
+  late final TextEditingController _goalsController;
+  late final TextEditingController _initiativeController;
+
+  @override
+  void initState() {
+    super.initState();
+    _objectivesController = TextEditingController(text: widget.initialObjectives);
+    _goalsController = TextEditingController(text: widget.initialGoals);
+    _initiativeController = TextEditingController(text: widget.initialInitiative);
+  }
+
+  @override
+  void didUpdateWidget(covariant MonthProjectionCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialObjectives != _objectivesController.text) {
+      _objectivesController.text = widget.initialObjectives;
+    }
+    if (widget.initialGoals != _goalsController.text) {
+      _goalsController.text = widget.initialGoals;
+    }
+    if (widget.initialInitiative != _initiativeController.text) {
+      _initiativeController.text = widget.initialInitiative;
+    }
+  }
+
+  @override
+  void dispose() {
+    _objectivesController.dispose();
+    _goalsController.dispose();
+    _initiativeController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,13 +81,13 @@ class MonthProjectionCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Month $monthNumber',
+                'Month ${widget.monthNumber}',
                 style: AppTextStyle.h4.copyWith(
                   color: AppColors.whiteColor,
                 ),
               ),
               Text(
-                monthLabel,
+                widget.monthLabel,
                 style: AppTextStyle.bodyText2.copyWith(
                   color: AppColors.whiteColor,
                 ),
@@ -56,13 +107,25 @@ class MonthProjectionCard extends StatelessWidget {
               width: 1,
             ),
           ),
-          child: const Column(
+          child: Column(
             children: [
-              ProjectionTextfield(hintText: 'Objectives'),
-              SizedBox(height: 12),
-              ProjectionTextfield(hintText: 'Goals'),
-              SizedBox(height: 12),
-              ProjectionTextfield(hintText: 'Initiative'),
+              ProjectionTextfield(
+                hintText: 'Objectives',
+                controller: _objectivesController,
+                onChanged: widget.onObjectivesChanged,
+              ),
+              const SizedBox(height: 12),
+              ProjectionTextfield(
+                hintText: 'Goals',
+                controller: _goalsController,
+                onChanged: widget.onGoalsChanged,
+              ),
+              const SizedBox(height: 12),
+              ProjectionTextfield(
+                hintText: 'Initiative',
+                controller: _initiativeController,
+                onChanged: widget.onInitiativeChanged,
+              ),
             ],
           ),
         ),
