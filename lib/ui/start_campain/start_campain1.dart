@@ -31,7 +31,7 @@ class _StartCampain1State extends State<StartCampain1> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Progress indicator
-                    const StartCampainProgress(currentStep: 1),
+                    const StartCampainProgress(currentStep: 1,totalSteps: 4,),
 
                     const SizedBox(height: 16),
 
@@ -46,22 +46,16 @@ class _StartCampain1State extends State<StartCampain1> {
                     const SizedBox(height: 16),
 
                     // Startup name
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: CampaignTextfield(
-                        label: 'Startup name',
-                        hintText: 'Example : Bluetooth umbrella',
-                      ),
+                    CampaignTextfield(
+                      label: 'Startup name',
+                      hintText: 'Example : Bluetooth umbrella',
                     ),
                     const SizedBox(height: 16),
 
                     // Short tagline
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: CampaignTextfield(
-                        label: 'Short tagline',
-                        hintText: 'Describe your startup in one shot',
-                      ),
+                    CampaignTextfield(
+                      label: 'Short tagline',
+                      hintText: 'Describe your startup in one shot',
                     ),
                     const SizedBox(height: 16),
 

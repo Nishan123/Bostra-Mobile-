@@ -5,6 +5,7 @@ import 'package:bostra/ui/main/main_screen.dart';
 import 'package:bostra/ui/start_campain/start_campain1.dart';
 import 'package:bostra/ui/start_campain/start_campain2.dart';
 import 'package:bostra/ui/start_campain/start_campain3.dart';
+import 'package:bostra/ui/start_campain/start_campain4.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -67,6 +68,11 @@ class AppRoutes {
         path: '/start-campaign-3',
         name: 'startCampaign3',
         builder: (context, state) => const StartCampain3(),
+      ),
+      GoRoute(
+        path: '/start-campaign-4',
+        name: 'startCampaign4',
+        builder: (context, state) => const StartCampain4(),
       ),
     ],
   );

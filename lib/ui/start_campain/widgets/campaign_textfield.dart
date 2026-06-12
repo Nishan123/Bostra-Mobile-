@@ -22,50 +22,53 @@ class CampaignTextfield extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: AppTextStyle.bodyText2.copyWith(
-            color: AppColors.blackColor.withAlpha(180),
-          ),
-        ),
-        const SizedBox(height: 6),
-        TextField(
-          controller: controller,
-          maxLines: maxLines,
-          keyboardType: keyboardType,
-          style: AppTextStyle.normalText.copyWith(
-            color: AppColors.blackColor,
-          ),
-          decoration: InputDecoration(
-            hintText: hintText,
-            hintStyle: AppTextStyle.normalText.copyWith(
-              color: AppColors.blackColor.withAlpha(100),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: AppTextStyle.bodyText2.copyWith(
+              color: AppColors.blackColor.withAlpha(180),
             ),
-            suffixIcon: suffixIcon,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
+          ),
+          const SizedBox(height: 6),
+          TextField(
+            controller: controller,
+            maxLines: maxLines,
+            keyboardType: keyboardType,
+            style: AppTextStyle.normalText.copyWith(
+              color: AppColors.blackColor,
             ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(
-                color: AppColors.blackColor.withAlpha(60),
-                width: 1,
+            decoration: InputDecoration(
+              hintText: hintText,
+              hintStyle: AppTextStyle.normalText.copyWith(
+                color: AppColors.blackColor.withAlpha(100),
+              ),
+              suffixIcon: suffixIcon,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(
+                  color: AppColors.blackColor.withAlpha(60),
+                  width: 1,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(
+                  color: AppColors.primaryColor,
+                  width: 1.5,
+                ),
               ),
             ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(
-                color: AppColors.primaryColor,
-                width: 1.5,
-              ),
-            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

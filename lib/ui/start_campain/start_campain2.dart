@@ -22,7 +22,7 @@ class StartCampain2 extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Progress indicator
-                    const StartCampainProgress(currentStep: 2),
+                    const StartCampainProgress(currentStep: 2,totalSteps: 4,),
 
                     const SizedBox(height: 16),
 
@@ -37,57 +37,42 @@ class StartCampain2 extends StatelessWidget {
                     const SizedBox(height: 16),
 
                     // Description
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: CampaignTextfield(
-                        label: 'Description',
-                        hintText: 'Write a brief description of your startup',
-                        maxLines: 4,
-                      ),
+                    CampaignTextfield(
+                      label: 'Description',
+                      hintText: 'Write a brief description of your startup',
+                      maxLines: 4,
                     ),
                     const SizedBox(height: 16),
 
                     // Problem statement
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: CampaignTextfield(
-                        label: 'Problem statement',
-                        hintText: 'What problem does your startup solve?',
-                        maxLines: 3,
-                      ),
+                    CampaignTextfield(
+                      label: 'Problem statement',
+                      hintText: 'What problem does your startup solve?',
+                      maxLines: 3,
                     ),
                     const SizedBox(height: 16),
 
                     // Solution
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: CampaignTextfield(
-                        label: 'Solution',
-                        hintText: 'How does your startup solve it?',
-                        maxLines: 3,
-                      ),
+                    CampaignTextfield(
+                      label: 'Solution',
+                      hintText: 'How does your startup solve it?',
+                      maxLines: 3,
                     ),
                     const SizedBox(height: 16),
 
                     // Target audience
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: CampaignTextfield(
-                        label: 'Target audience',
-                        hintText: 'Who is your target audience?',
-                        maxLines: 2,
-                      ),
+                    CampaignTextfield(
+                      label: 'Target audience',
+                      hintText: 'Who is your target audience?',
+                      maxLines: 2,
                     ),
                     const SizedBox(height: 16),
 
                     // Unique selling point
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: CampaignTextfield(
-                        label: 'Unique selling point',
-                        hintText: 'What makes your startup unique?',
-                        maxLines: 2,
-                      ),
+                    CampaignTextfield(
+                      label: 'Unique selling point',
+                      hintText: 'What makes your startup unique?',
+                      maxLines: 2,
                     ),
                     const SizedBox(height: 24),
                   ],
