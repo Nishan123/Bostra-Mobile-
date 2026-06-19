@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:bostra/constants/table_names.dart';
 import 'package:bostra/failure/failure.dart';
 import 'package:bostra/models/campaign_model.dart';
@@ -34,7 +35,6 @@ class CampaignController {
       if (campaignData['updated_at'] == null) {
         campaignData.remove('updated_at');
       }
-
       final response = await _supabase
           .from(_tables.campaignTable)
           .insert(campaignData)
@@ -43,6 +43,49 @@ class CampaignController {
       return Right(CampaignModel.fromJson(response));
     } catch (e) {
       return Left(ApiFailure(message: "Failed to start campaign: $e"));
+    }
+  }
+
+
+
+  Future<String> uploadCampaignFile({
+    required String filePath,
+    required String folderName,
+  }) async {
+    final file = File(filePath);
+    final fileName = filePath.split('/').last;
+    final userId = _supabase.auth.currentUser?.id ?? 'anonymous';
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    
+    // Unique path in bucket, e.g. "userId/documents/17822992_registration.pdf"
+    final storagePath = '$userId/$folderName/${timestamp}_$fileName';
+    
+    await _supabase.storage.from('campaigns').upload(
+          storagePath,
+          file,
+          fileOptions: const FileOptions(
+            cacheControl: '3600',
+            upsert: false,
+          ),
+        );
+        
+    return _supabase.storage.from('campaigns').getPublicUrl(storagePath);
+  }
+
+  // Get all the verified public campaign
+  Future<Either<Failure, List<CampaignModel>>> getVerifiedCampaigns() async {
+    try {
+      final response = await _supabase
+          .from(_tables.campaignTable)
+          .select()
+          .eq('is_verified', true)
+          .order('created_at', ascending: false);
+      final campaigns = (response as List<dynamic>)
+          .map((e) => CampaignModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+      return Right(campaigns);
+    } catch (e) {
+      return Left(ApiFailure(message: "Failed to fetch campaigns: $e"));
     }
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:bostra/models/campaign_model.dart';
 import 'package:bostra/theme/app_colors.dart';
 import 'package:bostra/theme/app_text_style.dart';
 import 'package:bostra/widgets/avatars_with_count.dart';
@@ -9,12 +10,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 
 class HomeCard extends StatelessWidget {
-  final double collectedAmount;
-  final double requestedAmount;
+  final CampaignModel campaign;
   const HomeCard({
     super.key,
-    required this.collectedAmount,
-    required this.requestedAmount,
+    required this.campaign,
   });
 
   @override
@@ -50,11 +49,13 @@ class HomeCard extends StatelessWidget {
             child: Stack(
               children: [
                 ClipRRect(
-                  child: Image.network(
-                    "https://images.pexels.com/photos/3952080/pexels-photo-3952080.jpeg",
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                  ),
+                  child: campaign.coverImageUrl != null
+                      ? Image.network(
+                          campaign.coverImageUrl!,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                        )
+                      : Container(color: AppColors.turnaryColor),
                 ),
 
                 //like button
@@ -97,7 +98,7 @@ class HomeCard extends StatelessWidget {
               children: [
                 // title text
                 Text(
-                  "Start up title not more than one line and other thing",
+                  campaign.startupName,
                   style: AppTextStyle.h2,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -111,11 +112,11 @@ class HomeCard extends StatelessWidget {
                   spacing: 8,
                   children: [
                     Text(
-                      "Rs ${collectedAmount.toStringAsFixed(0).toString()}",
+                      "Rs ${campaign.currentFunding.toStringAsFixed(0)}",
                       style: AppTextStyle.h3,
                     ),
                     Text("Raised of"),
-                    Text("Rs ${requestedAmount.toStringAsFixed(0).toString()}"),
+                    Text("Rs ${campaign.targetAmount.toStringAsFixed(0)}"),
                   ],
                 ),
 

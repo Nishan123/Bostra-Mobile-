@@ -1,6 +1,7 @@
 import 'package:bostra/theme/app_text_style.dart';
 import 'package:bostra/ui/start_campain/widgets/campain_app_bar.dart';
 import 'package:bostra/ui/start_campain/widgets/campaign_textfield.dart';
+import 'package:bostra/ui/start_campain/widgets/cover_image_picker.dart';
 import 'package:bostra/ui/start_campain/widgets/industry_dropdown.dart';
 import 'package:bostra/ui/start_campain/widgets/month_projection_card.dart';
 import 'package:bostra/ui/start_campain/widgets/start_campain_progress.dart';
@@ -110,6 +111,27 @@ class _StartCampain1State extends ConsumerState<StartCampain1> {
                           }
                         },
                       ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Cover image
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text('Cover Image', style: AppTextStyle.h2),
+                    ),
+                    const SizedBox(height: 12),
+                    CoverImagePicker(
+                      initialImagePaths: ref
+                          .read(campaignViewModelProvider)
+                          .campaign
+                          .galleryImageUrls,
+                      onImagesChanged: (files) {
+                        ref
+                            .read(campaignViewModelProvider.notifier)
+                            .updateCoverImages(
+                              files.map((f) => f.path).toList(),
+                            );
+                      },
                     ),
                     const SizedBox(height: 24),
 

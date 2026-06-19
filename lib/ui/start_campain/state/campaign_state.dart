@@ -2,6 +2,30 @@ import 'package:bostra/models/campaign_model.dart';
 
 enum CampaignStatus { initial, loading, success, error }
 
+class GetCampaignState {
+  final CampaignStatus status;
+  final String? errorMessage;
+  final List<CampaignModel> campaigns;
+
+  const GetCampaignState({
+    this.status = CampaignStatus.initial,
+    this.errorMessage,
+    this.campaigns = const [],
+  });
+
+  GetCampaignState copyWith({
+    CampaignStatus? status,
+    String? errorMessage,
+    List<CampaignModel>? campaigns,
+  }) {
+    return GetCampaignState(
+      status: status ?? this.status,
+      errorMessage: errorMessage ?? this.errorMessage,
+      campaigns: campaigns ?? this.campaigns,
+    );
+  }
+}
+
 class CampaignState {
   final CampaignStatus status;
   final String? errorMessage;

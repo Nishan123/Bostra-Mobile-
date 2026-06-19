@@ -32,6 +32,24 @@ class StartCampaignViewModel extends Notifier<CampaignState> {
     );
   }
 
+  void updateCoverImageUrl(String? url) {
+    state = state.copyWith(
+      campaign: state.campaign.copyWith(coverImageUrl: url),
+    );
+  }
+
+  /// Stores up to 4 local image paths. Index 0 is the primary cover — it is
+  /// also written to [coverImageUrl] so the rest of the app always has a
+  /// single cover reference without duplicating uploads.
+  void updateCoverImages(List<String> paths) {
+    state = state.copyWith(
+      campaign: state.campaign.copyWith(
+        galleryImageUrls: paths,
+        coverImageUrl: paths.isNotEmpty ? paths.first : null,
+      ),
+    );
+  }
+
   void updateMonthProjection(
     int monthNumber,
     String monthLabel, {
@@ -124,24 +142,125 @@ class StartCampaignViewModel extends Notifier<CampaignState> {
   Future<bool> submitCampaign() async {
     state = state.copyWith(status: CampaignStatus.loading, errorMessage: null);
 
-    final result = await _campaignController.createCampaign(state.campaign);
+    try {
+      var campaign = state.campaign;
 
-    return result.fold(
-      (failure) {
-        state = state.copyWith(
-          status: CampaignStatus.error,
-          errorMessage: failure.errorMessage,
+      // 1. Upload company registration
+      if (campaign.companyRegistrationUrl != null &&
+          campaign.companyRegistrationUrl!.isNotEmpty &&
+          _isLocalFile(campaign.companyRegistrationUrl!)) {
+        final publicUrl = await _campaignController.uploadCampaignFile(
+          filePath: campaign.companyRegistrationUrl!,
+          folderName: 'documents',
         );
-        return false;
-      },
-      (campaign) {
-        state = state.copyWith(
-          status: CampaignStatus.success,
-          campaign: campaign,
+        campaign = campaign.copyWith(companyRegistrationUrl: publicUrl);
+      }
+
+      // 2. Upload PAN
+      if (campaign.panUrl != null &&
+          campaign.panUrl!.isNotEmpty &&
+          _isLocalFile(campaign.panUrl!)) {
+        final publicUrl = await _campaignController.uploadCampaignFile(
+          filePath: campaign.panUrl!,
+          folderName: 'documents',
         );
-        return true;
-      },
-    );
+        campaign = campaign.copyWith(panUrl: publicUrl);
+      }
+
+      // 3. Upload MOA / AOA
+      if (campaign.moaAoaUrl != null &&
+          campaign.moaAoaUrl!.isNotEmpty &&
+          _isLocalFile(campaign.moaAoaUrl!)) {
+        final publicUrl = await _campaignController.uploadCampaignFile(
+          filePath: campaign.moaAoaUrl!,
+          folderName: 'documents',
+        );
+        campaign = campaign.copyWith(moaAoaUrl: publicUrl);
+      }
+
+      // 4. Upload Logo
+      if (campaign.logoUrl != null &&
+          campaign.logoUrl!.isNotEmpty &&
+          _isLocalFile(campaign.logoUrl!)) {
+        final publicUrl = await _campaignController.uploadCampaignFile(
+          filePath: campaign.logoUrl!,
+          folderName: 'media',
+        );
+        campaign = campaign.copyWith(logoUrl: publicUrl);
+      }
+
+      // 5. Upload Pitch Video
+      if (campaign.pitchVideoUrl != null &&
+          campaign.pitchVideoUrl!.isNotEmpty &&
+          _isLocalFile(campaign.pitchVideoUrl!)) {
+        final publicUrl = await _campaignController.uploadCampaignFile(
+          filePath: campaign.pitchVideoUrl!,
+          folderName: 'media',
+        );
+        campaign = campaign.copyWith(pitchVideoUrl: publicUrl);
+      }
+
+      // 6. Upload Gallery / Cover Images
+      // coverImageUrl is always derived from galleryImageUrls[0] so we upload
+      // everything in one pass and avoid uploading the same file twice.
+      if (campaign.galleryImageUrls.isNotEmpty) {
+        final List<String> uploadedUrls = [];
+        for (final localPath in campaign.galleryImageUrls) {
+          if (localPath.isNotEmpty && _isLocalFile(localPath)) {
+            final publicUrl = await _campaignController.uploadCampaignFile(
+              filePath: localPath,
+              folderName: 'media',
+            );
+            uploadedUrls.add(publicUrl);
+          } else {
+            uploadedUrls.add(localPath);
+          }
+        }
+        campaign = campaign.copyWith(
+          galleryImageUrls: uploadedUrls,
+          // Keep coverImageUrl in sync with the primary gallery image.
+          coverImageUrl: uploadedUrls.first,
+        );
+      } else if (campaign.coverImageUrl != null &&
+          campaign.coverImageUrl!.isNotEmpty &&
+          _isLocalFile(campaign.coverImageUrl!)) {
+        // Fallback: single cover image set via the old path.
+        final publicUrl = await _campaignController.uploadCampaignFile(
+          filePath: campaign.coverImageUrl!,
+          folderName: 'media',
+        );
+        campaign = campaign.copyWith(coverImageUrl: publicUrl);
+      }
+
+      final result = await _campaignController.createCampaign(campaign);
+
+      return result.fold(
+        (failure) {
+          state = state.copyWith(
+            status: CampaignStatus.error,
+            errorMessage: failure.errorMessage,
+          );
+          return false;
+        },
+        (savedCampaign) {
+          state = state.copyWith(
+            status: CampaignStatus.success,
+            campaign: savedCampaign,
+          );
+          return true;
+        },
+      );
+    } catch (e) {
+      state = state.copyWith(
+        status: CampaignStatus.error,
+        errorMessage: "Failed to upload media files: $e",
+      );
+      return false;
+    }
+  }
+
+  bool _isLocalFile(String path) {
+    return !path.startsWith('http://') && !path.startsWith('https://');
   }
 
   void resetStatus() {

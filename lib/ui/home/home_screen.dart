@@ -3,6 +3,8 @@ import 'package:bostra/enums/chips_options.dart';
 import 'package:bostra/ui/home/widgets/home_card.dart';
 import 'package:bostra/ui/home/widgets/home_chips.dart';
 import 'package:bostra/ui/home/widgets/home_search_bar.dart';
+import 'package:bostra/ui/start_campain/state/campaign_state.dart';
+import 'package:bostra/ui/start_campain/view_model/get_campaign_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,10 +15,62 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final mq = MediaQuery.of(context).size;
+    final state = ref.watch(getCampaignViewModelProvider);
+
+    // Wraps [child] in a single-item ListView so RefreshIndicator always has
+    // a scrollable to attach to, and LayoutBuilder centres content vertically
+    // in the exact remaining space below the fixed header.
+    Widget centeredScrollable(Widget child) {
+      return LayoutBuilder(
+        builder: (_, constraints) => ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: [
+            SizedBox(
+              height: constraints.maxHeight,
+              child: Center(child: child),
+            ),
+          ],
+        ),
+      );
+    }
+
+    Widget body;
+    switch (state.status) {
+      case CampaignStatus.initial:
+      case CampaignStatus.loading:
+        body = centeredScrollable(const CircularProgressIndicator());
+
+      case CampaignStatus.error:
+        body = centeredScrollable(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              state.errorMessage ?? 'Something went wrong.',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        );
+
+      case CampaignStatus.success:
+        if (state.campaigns.isEmpty) {
+          body = centeredScrollable(
+            const Text(
+              'No campaigns available right now.',
+              textAlign: TextAlign.center,
+            ),
+          );
+        } else {
+          body = ListView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.only(top: 4, bottom: 24),
+            itemCount: state.campaigns.length,
+            itemBuilder: (context, index) =>
+                HomeCard(campaign: state.campaigns[index]),
+          );
+        }
+    }
 
     return Scaffold(
-      // app bar
       appBar: AppBar(
         title: SvgPicture.asset(
           "${AssetsPath.svgPath}logo_without_slogan.svg",
@@ -24,37 +78,35 @@ class HomeScreen extends ConsumerWidget {
         ),
         centerTitle: false,
         actions: [
-          IconButton(onPressed: () {}, icon: Icon(LucideIcons.bell)),
-          SizedBox(width: 8),
+          IconButton(onPressed: () {}, icon: const Icon(LucideIcons.bell)),
+          const SizedBox(width: 8),
         ],
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-             SizedBox(height: 12,),
-              HomeSearchBar(onFilterTap: () {}),
-              SizedBox(height: 14),
-             HomeChips(values: ChipsOptions.values, labelBuilder: (options)=>options.text, iconBuilder: null),
-              SizedBox(height: 14,),
-              ListView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: 12,
-                itemBuilder: ((context, index) {
-                  return HomeCard(
-                    requestedAmount: 120000,
-                    collectedAmount: 12300,
-                  );
-                }),
-              ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // ── Fixed header ──────────────────────────────────────────────
+            const SizedBox(height: 12),
+            HomeSearchBar(onFilterTap: () {}),
+            const SizedBox(height: 14),
+            HomeChips(
+              values: ChipsOptions.values,
+              labelBuilder: (options) => options.text,
+              iconBuilder: null,
+            ),
+            const SizedBox(height: 14),
 
-              const SizedBox(height: 20),
-             
-            ],
-          ),
+            // ── Scrollable / state-driven content ─────────────────────────
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: () => ref
+                    .read(getCampaignViewModelProvider.notifier)
+                    .fetchVerifiedCampaigns(),
+                child: body,
+              ),
+            ),
+          ],
         ),
       ),
     );
