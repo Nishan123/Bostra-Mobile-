@@ -12,7 +12,6 @@ final campaignControllerProvider = Provider((ref){
 
 class CampaignController {
   final SupabaseClient _supabase = Supabase.instance.client;
-  final TableNames _tables = TableNames();
 
   Future<Either<Failure, CampaignModel>> createCampaign(
     CampaignModel newCampaign,
@@ -36,7 +35,7 @@ class CampaignController {
         campaignData.remove('updated_at');
       }
       final response = await _supabase
-          .from(_tables.campaignTable)
+          .from(TableNames.campaignTable)
           .insert(campaignData)
           .select()
           .single();
@@ -76,7 +75,7 @@ class CampaignController {
   Future<Either<Failure, List<CampaignModel>>> getVerifiedCampaigns() async {
     try {
       final response = await _supabase
-          .from(_tables.campaignTable)
+          .from(TableNames.campaignTable)
           .select()
           .eq('is_verified', true)
           .order('created_at', ascending: false);

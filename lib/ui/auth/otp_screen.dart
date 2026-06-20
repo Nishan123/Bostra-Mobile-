@@ -44,13 +44,39 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     super.dispose();
   }
 
+  Future<void> _handleVerify() async {
+    final otp = otpController.text.trim();
+
+    if (otp.length < 6) {
+      CustomSnackBar.showErrorSnackBar(
+        context,
+        "Please enter the complete 6-digit OTP code.",
+      );
+      return;
+    }
+    if (otpExperiesIn == 0) {
+      CustomSnackBar.showErrorSnackBar(context, "OTP code has expired");
+      return;
+    }
+
+    // verifyOtp returns the route name to navigate to, or null on error.
+    final routeName =
+        await ref.read(authViewModelProvider.notifier).verifyOtp(otp);
+
+    if (!mounted) return;
+
+    if (routeName != null) {
+      context.goNamed(routeName);
+    } else {
+      // Error is already set in state; ref.listen below will show the snackbar.
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Only listen for errors — navigation is handled directly in _handleVerify.
     ref.listen<AuthState>(authViewModelProvider, (previous, next) {
-      if (next.status == AuthStatus.success) {
-        ref.read(authViewModelProvider.notifier).resetStatus();
-        context.goNamed("main");
-      } else if (next.status == AuthStatus.error) {
+      if (next.status == AuthStatus.error) {
         final message = next.errorMessage ?? "Verification failed";
         CustomSnackBar.showErrorSnackBar(context, message);
         ref.read(authViewModelProvider.notifier).resetStatus();
@@ -89,13 +115,13 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                 style: AppTextStyle.h1,
                 textAlign: TextAlign.start,
               ),
-              SizedBox(height: 8),
-              // OTP Filed
+              const SizedBox(height: 8),
+              // OTP Field
               OtpField(controller: otpController),
-              SizedBox(height: 8),
-              // explanatory text
+              const SizedBox(height: 8),
+              // Explanatory text
               Text(
-                "We’ve sent an OTP to ${authState.phoneNumber ?? 'your number'}. Enter it to verify\nyour number.",
+                "We've sent an OTP to ${authState.phoneNumber ?? 'your number'}. Enter it to verify\nyour number.",
                 style: AppTextStyle.normalText.copyWith(
                   color: AppColors.black10,
                 ),
@@ -103,11 +129,11 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
               SizedBox(height: height * 0.03),
               Row(
                 children: [
-                  Text("Didn't received OTP code?  "),
+                  const Text("Didn't received OTP code?  "),
                   Text("Resend OTP", style: AppTextStyle.buttonTextStyle),
                 ],
               ),
-              // push button to the bottom while allowing the content to shrink/grow
+              // Push button to the bottom
               const Expanded(child: SizedBox()),
 
               Row(
@@ -125,25 +151,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
                 child: PrimaryButton(
                   text: "Next",
                   isLoading: authState.status == AuthStatus.loading,
-                  onTap: () {
-                    final otp = otpController.text.trim();
-                    if (otp.length < 6) {
-                      CustomSnackBar.showErrorSnackBar(
-                        context,
-                        "Please enter the complete 6-digit OTP code.",
-                      );
-                      return;
-                    }
-                    if (otpExperiesIn == 0) {
-                      CustomSnackBar.showErrorSnackBar(
-                        context,
-                        "OTP code has expired",
-                      );
-                      return;
-                    }
-
-                    ref.read(authViewModelProvider.notifier).verifyOtp(otp);
-                  },
+                  onTap: _handleVerify,
                 ),
               ),
             ],
