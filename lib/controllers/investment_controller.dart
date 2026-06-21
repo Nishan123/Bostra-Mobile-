@@ -1,0 +1,72 @@
+import 'package:bostra/constants/table_names.dart';
+import 'package:bostra/failure/failure.dart';
+import 'package:bostra/models/investment_model.dart';
+import 'package:dartz/dartz.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+final investmentControllerProvider = Provider((ref) {
+  return InvestmentController();
+});
+
+class InvestmentController {
+  final SupabaseClient _supabase = Supabase.instance.client;
+
+  /// Inserts a new investment row AND atomically updates the campaign's
+  /// `current_funding` and `total_investors` via a Postgres RPC function.
+  ///
+  /// Returns the created [InvestmentModel] on success or a [Failure] on error.
+  Future<Either<Failure, InvestmentModel>> invest({
+    required String campaignId,
+    required double amount,
+  }) async {
+    try {
+      final investorId = _supabase.auth.currentUser?.id;
+      if (investorId == null) {
+        return Left(ApiFailure(message: 'Not authenticated'));
+      }
+
+      // 1. Call DB function that inserts investment + updates campaign atomically
+      await _supabase.rpc('invest_in_campaign', params: {
+        'p_campaign_id': campaignId,
+        'p_investor_id': investorId,
+        'p_amount': amount,
+      });
+
+      // 2. Fetch back the inserted row
+      final response = await _supabase
+          .from(TableNames.investmentsTable)
+          .select()
+          .eq('campaign_id', campaignId)
+          .eq('investor_id', investorId)
+          .order('created_at', ascending: false)
+          .limit(1)
+          .single();
+
+      return Right(InvestmentModel.fromJson(response));
+    } catch (e) {
+      return Left(ApiFailure(message: 'Investment failed: $e'));
+    }
+  }
+
+  /// Fetches all investments made by the currently logged-in user.
+  Future<Either<Failure, List<InvestmentModel>>> getMyInvestments() async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return Right([]);
+
+      final response = await _supabase
+          .from(TableNames.investmentsTable)
+          .select('*, campaign(*)')
+          .eq('investor_id', userId)
+          .order('created_at', ascending: false);
+
+      final list = (response as List<dynamic>)
+          .map((e) => InvestmentModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+      return Right(list);
+    } catch (e) {
+      return Left(ApiFailure(message: 'Failed to fetch investments: $e'));
+    }
+  }
+}

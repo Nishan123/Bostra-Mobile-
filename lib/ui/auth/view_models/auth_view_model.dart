@@ -3,6 +3,8 @@ import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 import 'package:bostra/controllers/auth_controller.dart';
 import 'package:bostra/controllers/user_controller.dart';
 import 'package:bostra/ui/auth/state/auth_state.dart';
+import 'package:bostra/ui/profile/view_model/profile_view_model.dart';
+import 'package:bostra/ui/investment/view_model/investment_tab_view_model.dart';
 
 final authViewModelProvider = NotifierProvider<AuthViewModel, AuthState>(AuthViewModel.new);
 
@@ -97,6 +99,11 @@ class AuthViewModel extends Notifier<AuthState> {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
     try {
       await _authController.signOut();
+      
+      // Explicitly invalidate all user-related view models on logout to wipe cache
+      ref.invalidate(profileViewModelProvider);
+      ref.invalidate(investmentTabViewModelProvider);
+      
       state = const AuthState();
     } on AuthException catch (e) {
       state = state.copyWith(status: AuthStatus.error, errorMessage: e.message);

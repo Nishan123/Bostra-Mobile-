@@ -1,3 +1,4 @@
+import 'package:bostra/models/investment_model.dart';
 import 'package:bostra/theme/app_colors.dart';
 import 'package:bostra/theme/app_text_style.dart';
 import 'package:bostra/ui/investment/widdgets/investment_status.dart';
@@ -6,11 +7,23 @@ import 'package:bostra/widgets/avatars_with_count.dart';
 import 'package:flutter/material.dart';
 
 class MyInvestmentCard extends StatelessWidget {
-  const MyInvestmentCard({super.key});
+  final InvestmentModel investment;
+  const MyInvestmentCard({super.key, required this.investment});
 
   @override
   Widget build(BuildContext context) {
-    final mq = MediaQuery.of(context).size;
+    final campaign = investment.campaign;
+    
+    // Map campaign status to InvestmentStatus
+    InvestmentStatus status = InvestmentStatus.stopped;
+    if (campaign != null) {
+      if (campaign.status == 'active' || campaign.status == 'verified') {
+        status = InvestmentStatus.raisingFund;
+      } else if (campaign.status == 'completed') {
+        status = InvestmentStatus.active;
+      }
+    }
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.whiteColor,
@@ -22,52 +35,69 @@ class MyInvestmentCard extends StatelessWidget {
       ),
       margin: const EdgeInsets.only(bottom: 12, left: 12, right: 12),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-
-      // 1. Wrap Row in IntrinsicHeight so the row knows the maximum height of its children
-      child: IntrinsicHeight(
-        child: Row(
-          // 2. Change this to stretch so the children fill the height of the IntrinsicHeight wrapper
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Image
-            Container(
-              // 3. Removed the hardcoded height. It will now match the parent.
-              width: mq.height * 0.17,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(18),
-                color: AppColors.turnaryColor,
-              ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Image
+          Container(
+            width: 100,
+            height: 140,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              color: AppColors.turnaryColor,
             ),
-            const SizedBox(width: 8),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(18),
+              child: (campaign?.logoUrl != null && campaign!.logoUrl!.isNotEmpty)
+                  ? Image.network(
+                      campaign.logoUrl!,
+                      fit: BoxFit.cover,
+                    )
+                  : (campaign?.coverImageUrl != null && campaign!.coverImageUrl!.isNotEmpty)
+                      ? Image.network(
+                          campaign.coverImageUrl!,
+                          fit: BoxFit.cover,
+                        )
+                      : const SizedBox(),
+            ),
+          ),
+          const SizedBox(width: 12),
 
-            // details
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+          // details
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                   const SizedBox(height: 8),
                   Text(
-                    "Startup title in not more than one line",
+                    campaign?.startupName ?? "Unknown Startup",
                     style: AppTextStyle.h3,
                     textAlign: TextAlign.left,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
-                  InvestmentStatusWidget(status: InvestmentStatus.active),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      InvestmentStatusWidget(status: status),
+                      Text(
+                        "Rs ${investment.amount.toStringAsFixed(0)}",
+                        style: AppTextStyle.bodyText1.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 8),
 
                   PLIndicator(diff: 12),
                   const SizedBox(height: 4),
 
                   AvatarsWithCount(
-                    imageUrls: const [
-                      "https://images.pexels.com/photos/10143324/pexels-photo-10143324.jpeg",
-                      "https://images.pexels.com/photos/10143324/pexels-photo-10143324.jpeg",
-                      "https://images.pexels.com/photos/10143324/pexels-photo-10143324.jpeg",
-                      "https://images.pexels.com/photos/10143324/pexels-photo-10143324.jpeg",
-                    ],
-                    totalBackers: 2,
+                    investorIds: campaign?.investors ?? const [],
+                    totalBackers: campaign?.totalInvestors ?? 0,
                     avatarSize: 32,
                     countTextStyle: AppTextStyle.bodyText1.copyWith(
                       fontWeight: FontWeight.bold,
@@ -78,7 +108,6 @@ class MyInvestmentCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 }

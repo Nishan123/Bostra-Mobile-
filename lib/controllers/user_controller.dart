@@ -48,12 +48,13 @@ class UserController {
     }
   }
 
-  /// Updates personal details (full name, DOB, address) for an existing user.
+  /// Updates personal details (full name, DOB, address, profile_pic_url) for an existing user.
   Future<Either<Failure, UserModel>> updateUserDetails({
     required String userId,
     required String fullName,
     required String dob,
     required String address,
+    String? profilePicUrl,
   }) async {
     try {
       final response = await _supabase
@@ -62,6 +63,7 @@ class UserController {
             'full_name': fullName,
             'dob': dob,
             'address': address,
+            'profile_pic_url':? profilePicUrl,
           })
           .eq('id', userId)
           .select()
@@ -138,4 +140,33 @@ class UserController {
       return Left(ApiFailure(message: 'Failed to fetch user: $e'));
     }
   }
+
+  /// Fetches multiple user records by their IDs.
+  Future<Either<Failure, List<UserModel>>> getUsersByIds(List<String> ids) async {
+    if (ids.isEmpty) return const Right([]);
+    try {
+      final response = await _supabase
+          .from(TableNames.usersTable)
+          .select()
+          .inFilter('id', ids);
+
+      final list = (response as List<dynamic>)
+          .map((e) => UserModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+      return Right(list);
+    } catch (e) {
+      return Left(ApiFailure(message: 'Failed to fetch users: $e'));
+    }
+  }
 }
+
+final campaignInvestorsProvider = FutureProvider.family<List<UserModel>, List<String>>((ref, ids) async {
+  if (ids.isEmpty) return const [];
+  final userController = ref.watch(userControllerProvider);
+  final result = await userController.getUsersByIds(ids);
+  return result.fold(
+    (failure) => throw Exception(failure.errorMessage),
+    (users) => users,
+  );
+});
+

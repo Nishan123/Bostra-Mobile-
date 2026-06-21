@@ -9,6 +9,7 @@ class UserModel extends Equatable {
   final String? citizenshipUrl;
   final String? nationalIdFrontUrl;
   final String? nationalIdBackUrl;
+  final String? profilePicUrl;
 
   const UserModel({
     required this.id,
@@ -19,6 +20,7 @@ class UserModel extends Equatable {
     this.citizenshipUrl,
     this.nationalIdFrontUrl,
     this.nationalIdBackUrl,
+    this.profilePicUrl,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -31,6 +33,7 @@ class UserModel extends Equatable {
       citizenshipUrl: json['citizenship_url'] as String?,
       nationalIdFrontUrl: json['national_id_front_url'] as String?,
       nationalIdBackUrl: json['national_id_back_url'] as String?,
+      profilePicUrl: json['profile_pic_url'] as String?,
     );
   }
 
@@ -44,6 +47,7 @@ class UserModel extends Equatable {
       if (citizenshipUrl != null) 'citizenship_url': citizenshipUrl,
       if (nationalIdFrontUrl != null) 'national_id_front_url': nationalIdFrontUrl,
       if (nationalIdBackUrl != null) 'national_id_back_url': nationalIdBackUrl,
+      if (profilePicUrl != null) 'profile_pic_url': profilePicUrl,
     };
   }
 
@@ -56,6 +60,7 @@ class UserModel extends Equatable {
     String? citizenshipUrl,
     String? nationalIdFrontUrl,
     String? nationalIdBackUrl,
+    String? profilePicUrl,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -66,6 +71,7 @@ class UserModel extends Equatable {
       citizenshipUrl: citizenshipUrl ?? this.citizenshipUrl,
       nationalIdFrontUrl: nationalIdFrontUrl ?? this.nationalIdFrontUrl,
       nationalIdBackUrl: nationalIdBackUrl ?? this.nationalIdBackUrl,
+      profilePicUrl: profilePicUrl ?? this.profilePicUrl,
     );
   }
 
@@ -79,5 +85,6 @@ class UserModel extends Equatable {
         citizenshipUrl,
         nationalIdFrontUrl,
         nationalIdBackUrl,
+        profilePicUrl,
       ];
 }

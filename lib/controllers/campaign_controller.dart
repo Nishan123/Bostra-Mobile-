@@ -87,4 +87,24 @@ class CampaignController {
       return Left(ApiFailure(message: "Failed to fetch campaigns: $e"));
     }
   }
+
+  // Get campaigns created by the current user
+  Future<Either<Failure, List<CampaignModel>>> getMyCampaigns() async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return const Right([]);
+      
+      final response = await _supabase
+          .from(TableNames.campaignTable)
+          .select()
+          .eq('user_id', userId)
+          .order('created_at', ascending: false);
+      final campaigns = (response as List<dynamic>)
+          .map((e) => CampaignModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+      return Right(campaigns);
+    } catch (e) {
+      return Left(ApiFailure(message: "Failed to fetch user campaigns: $e"));
+    }
+  }
 }

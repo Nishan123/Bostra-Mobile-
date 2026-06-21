@@ -10,6 +10,9 @@ class UserDetailsState {
   final DocumentType documentType;
   final String? errorMessage;
 
+  // Profile picture
+  final XFile? profilePicFile;
+
   // Citizenship — single full doc
   final XFile? citizenshipFile;
 
@@ -22,6 +25,7 @@ class UserDetailsState {
     this.currentStep = 0,
     this.documentType = DocumentType.citizenship,
     this.errorMessage,
+    this.profilePicFile,
     this.citizenshipFile,
     this.nationalIdFrontFile,
     this.nationalIdBackFile,
@@ -32,6 +36,7 @@ class UserDetailsState {
     int? currentStep,
     DocumentType? documentType,
     String? errorMessage,
+    XFile? profilePicFile,
     XFile? citizenshipFile,
     XFile? nationalIdFrontFile,
     XFile? nationalIdBackFile,
@@ -41,6 +46,7 @@ class UserDetailsState {
       currentStep: currentStep ?? this.currentStep,
       documentType: documentType ?? this.documentType,
       errorMessage: errorMessage ?? this.errorMessage,
+      profilePicFile: profilePicFile ?? this.profilePicFile,
       citizenshipFile: citizenshipFile ?? this.citizenshipFile,
       nationalIdFrontFile: nationalIdFrontFile ?? this.nationalIdFrontFile,
       nationalIdBackFile: nationalIdBackFile ?? this.nationalIdBackFile,

@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'package:bostra/constants/table_names.dart';
+import 'package:bostra/models/campaign_model.dart';
 import 'package:bostra/ui/auth/login_screen.dart';
 import 'package:bostra/ui/auth/otp_screen.dart';
 import 'package:bostra/ui/auth/user_details_screen.dart';
+import 'package:bostra/ui/fund_startup/fund_startup_screen.dart';
 import 'package:bostra/ui/main/main_screen.dart';
+import 'package:bostra/ui/startup_details/startup_details.dart';
 import 'package:bostra/ui/start_campain/start_campain1.dart';
 import 'package:bostra/ui/start_campain/start_campain2.dart';
 import 'package:bostra/ui/start_campain/start_campain3.dart';
@@ -77,6 +80,22 @@ class AppRoutes {
         path: '/main',
         name: 'main',
         builder: (context, state) => const MainScreen(),
+      ),
+      GoRoute(
+        path: '/startup-details',
+        name: 'startupDetails',
+        builder: (context, state) {
+          final campaign = state.extra as CampaignModel;
+          return StartupDetailsScreen(campaign: campaign);
+        },
+      ),
+      GoRoute(
+        path: '/fund-startup',
+        name: 'fundStartup',
+        builder: (context, state) {
+          final campaign = state.extra as CampaignModel;
+          return FundStartupScreen(campaign: campaign);
+        },
       ),
       GoRoute(
         path: '/start-campaign-1',

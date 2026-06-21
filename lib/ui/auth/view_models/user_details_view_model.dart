@@ -36,6 +36,9 @@ class UserDetailsViewModel extends Notifier<UserDetailsState> {
     if (picked == null) return;
 
     switch (slot) {
+      case 'profilePic':
+        state = state.copyWith(profilePicFile: picked);
+        break;
       case 'citizenship':
         state = state.copyWith(citizenshipFile: picked);
         break;
@@ -57,11 +60,36 @@ class UserDetailsViewModel extends Notifier<UserDetailsState> {
   }) async {
     state = state.copyWith(status: UserDetailsStatus.loading, errorMessage: null);
 
+    String? profilePicUrl;
+    if (state.profilePicFile != null) {
+      final uploadResult = await _userController.uploadDocument(
+        userId: userId,
+        file: File(state.profilePicFile!.path),
+        fileName: 'profile_pic.${state.profilePicFile!.path.split('.').last}',
+      );
+
+      bool uploadSuccess = false;
+      await uploadResult.fold(
+        (failure) async {
+          state = state.copyWith(
+            status: UserDetailsStatus.error,
+            errorMessage: 'Profile picture upload failed: ${failure.errorMessage}',
+          );
+        },
+        (url) async {
+          profilePicUrl = url;
+          uploadSuccess = true;
+        },
+      );
+      if (!uploadSuccess) return false;
+    }
+
     final result = await _userController.updateUserDetails(
       userId: userId,
       fullName: fullName,
       dob: dob,
       address: address,
+      profilePicUrl: profilePicUrl,
     );
 
     return result.fold(

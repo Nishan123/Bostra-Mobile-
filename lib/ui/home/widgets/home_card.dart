@@ -10,6 +10,7 @@ import 'package:bostra/widgets/info_chip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeCard extends ConsumerWidget {
   final CampaignModel campaign;
@@ -24,7 +25,12 @@ class HomeCard extends ConsumerWidget {
           .select((s) => s.savedIds.contains(campaign.id)),
     );
 
-    return Container(
+    return GestureDetector(
+      onTap: () => context.pushNamed(
+        'startupDetails',
+        extra: campaign,
+      ),
+      child: Container(
       clipBehavior: Clip.hardEdge,
       margin: const EdgeInsets.only(left: 14, right: 14, bottom: 18),
       padding: const EdgeInsets.only(bottom: 8),
@@ -129,12 +135,7 @@ class HomeCard extends ConsumerWidget {
                 Row(
                   children: [
                     AvatarsWithCount(
-                      imageUrls: const [
-                        'https://images.pexels.com/photos/10143324/pexels-photo-10143324.jpeg',
-                        'https://images.pexels.com/photos/10143324/pexels-photo-10143324.jpeg',
-                        'https://images.pexels.com/photos/10143324/pexels-photo-10143324.jpeg',
-                        'https://images.pexels.com/photos/10143324/pexels-photo-10143324.jpeg',
-                      ],
+                      investorIds: campaign.investors,
                       totalBackers: campaign.totalInvestors,
                       avatarSize: 40,
                     ),
@@ -147,6 +148,7 @@ class HomeCard extends ConsumerWidget {
           ),
         ],
       ),
+    ),   // GestureDetector
     );
   }
 }
