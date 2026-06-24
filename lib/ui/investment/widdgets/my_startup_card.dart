@@ -73,7 +73,7 @@ class MyStartupCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       if (campaign.industry.isNotEmpty) InfoChip(text: campaign.industry),
-                      InfoChip(text: campaign.status.toUpperCase()),
+                      InfoChip(text: campaign.status.text.toUpperCase()),
                     ],
                   ),
                 ),

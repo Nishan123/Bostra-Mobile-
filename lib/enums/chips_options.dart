@@ -1,52 +1,43 @@
 enum ChipsOptions {
-  art,
-  comics,
-  crafts,
-  dance,
-  design,
-  fashion,
-  film,
-  food,
-  games,
-  journalism,
-  music,
-  photography,
-  publishing,
+  all,
   technology,
-  theater;
+  healthcare,
+  finance,
+  education,
+  ecommerce,
+  foodBeverage,
+  realEstate,
+  entertainment,
+  agriculture,
+  manufacturing,
+  others;
 
   String get text {
     switch (this) {
-      case ChipsOptions.art:
-        return 'Art';
-      case ChipsOptions.comics:
-        return 'Comics';
-      case ChipsOptions.crafts:
-        return 'Crafts';
-      case ChipsOptions.dance:
-        return 'Dance';
-      case ChipsOptions.design:
-        return 'Design';
-      case ChipsOptions.fashion:
-        return 'Fashion';
-      case ChipsOptions.film:
-        return 'Film';
-      case ChipsOptions.food:
-        return 'Food';
-      case ChipsOptions.games:
-        return 'Games';
-      case ChipsOptions.journalism:
-        return 'Journalism';
-      case ChipsOptions.music:
-        return 'Music';
-      case ChipsOptions.photography:
-        return 'Photography';
-      case ChipsOptions.publishing:
-        return 'Publishing';
+      case ChipsOptions.all:
+        return 'All';
       case ChipsOptions.technology:
         return 'Technology';
-      case ChipsOptions.theater:
-        return 'Theater';
+      case ChipsOptions.healthcare:
+        return 'Healthcare';
+      case ChipsOptions.finance:
+        return 'Finance';
+      case ChipsOptions.education:
+        return 'Education';
+      case ChipsOptions.ecommerce:
+        return 'E-commerce';
+      case ChipsOptions.foodBeverage:
+        return 'Food & Beverage';
+      case ChipsOptions.realEstate:
+        return 'Real Estate';
+      case ChipsOptions.entertainment:
+        return 'Entertainment';
+      case ChipsOptions.agriculture:
+        return 'Agriculture';
+      case ChipsOptions.manufacturing:
+        return 'Manufacturing';
+      case ChipsOptions.others:
+        return 'Others';
     }
   }
 }

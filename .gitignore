@@ -33,6 +33,10 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Environment variables — keep secrets (Gemini key, etc.) out of git.
+# .env.example stays tracked as the template.
+.env
+
 # Symbolication related
 app.*.symbols
 

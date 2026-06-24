@@ -26,6 +26,27 @@ class FundStartupViewModel extends FamilyNotifier<FundStartupState, String> {
     state = state.copyWith(amount: amount);
   }
 
+  /// Validates the amount + terms before the payment sheet is shown.
+  /// Surfaces the same error states the existing listener already handles.
+  bool validateForPayment() {
+    final amount = state.amount;
+    if (amount == null || amount <= 0) {
+      state = state.copyWith(
+        status: FundStatus.error,
+        errorMessage: 'Please enter a valid amount.',
+      );
+      return false;
+    }
+    if (!state.agreedToTerms) {
+      state = state.copyWith(
+        status: FundStatus.error,
+        errorMessage: 'You must agree to the terms before investing.',
+      );
+      return false;
+    }
+    return true;
+  }
+
   Future<void> submitInvestment() async {
     final amount = state.amount;
     if (amount == null || amount <= 0) {

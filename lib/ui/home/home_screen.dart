@@ -10,11 +10,26 @@ import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  ChipsOptions _selectedCategory = ChipsOptions.all;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(getCampaignViewModelProvider);
 
     // Wraps [child] in a single-item ListView so RefreshIndicator always has
@@ -52,7 +67,24 @@ class HomeScreen extends ConsumerWidget {
         );
 
       case CampaignStatus.success:
-        if (state.campaigns.isEmpty) {
+        var filteredCampaigns = state.campaigns;
+
+        // Filter by category chip
+        if (_selectedCategory != ChipsOptions.all) {
+          filteredCampaigns = filteredCampaigns.where((campaign) =>
+              campaign.industry.trim().toLowerCase() ==
+              _selectedCategory.text.trim().toLowerCase()).toList();
+        }
+
+        // Filter by search query
+        if (_searchQuery.isNotEmpty) {
+          final query = _searchQuery.toLowerCase();
+          filteredCampaigns = filteredCampaigns.where((campaign) =>
+              campaign.startupName.toLowerCase().contains(query) ||
+              campaign.shortTagline.toLowerCase().contains(query)).toList();
+        }
+
+        if (filteredCampaigns.isEmpty) {
           body = centeredScrollable(
             const Text(
               'No campaigns available right now.',
@@ -63,9 +95,9 @@ class HomeScreen extends ConsumerWidget {
           body = ListView.builder(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.only(top: 4, bottom: 24),
-            itemCount: state.campaigns.length,
+            itemCount: filteredCampaigns.length,
             itemBuilder: (context, index) =>
-                HomeCard(campaign: state.campaigns[index]),
+                HomeCard(campaign: filteredCampaigns[index]),
           );
         }
     }
@@ -88,12 +120,26 @@ class HomeScreen extends ConsumerWidget {
           children: [
             // ── Fixed header ──────────────────────────────────────────────
             const SizedBox(height: 12),
-            HomeSearchBar(onFilterTap: () {}),
+            HomeSearchBar(
+              controller: _searchController,
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+              onFilterTap: () {},
+            ),
             const SizedBox(height: 14),
             HomeChips(
               values: ChipsOptions.values,
               labelBuilder: (options) => options.text,
               iconBuilder: null,
+              selectedValue: _selectedCategory,
+              onSelected: (category) {
+                setState(() {
+                  _selectedCategory = category;
+                });
+              },
             ),
             const SizedBox(height: 14),
 

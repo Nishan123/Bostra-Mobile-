@@ -223,40 +223,9 @@ class StartupDetailsScreen extends ConsumerWidget {
                     const SizedBox(height: 4),
 
                     // ── Backers till now ───────────────────────────────────
-                    if (10 > 0) ...[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 4),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Backers till now',
-                                style: AppTextStyle.h4),
-                            TextButton(
-                              onPressed: () {},
-                              style: TextButton.styleFrom(
-                                padding: EdgeInsets.zero,
-                                minimumSize: Size.zero,
-                                tapTargetSize:
-                                    MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              child: Text(
-                                'See All',
-                                style: TextStyle(
-                                  color: AppColors.primaryColor,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SdBackersList(
-                        count: 4,
-                        currentFunding: c.currentFunding,
-                      ),
-                    ],
+                    // Real backers mapped from the investors → users table.
+                    // Renders its own header and hides itself when empty.
+                    SdBackersList(campaignId: c.id ?? ''),
 
                     const SizedBox(height: 4),
 

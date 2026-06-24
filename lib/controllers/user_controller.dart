@@ -141,18 +141,30 @@ class UserController {
     }
   }
 
-  /// Fetches multiple user records by their IDs.
+  /// Fetches public profile fields (id, name, pic) for multiple users.
+  ///
+  /// Goes through the `get_public_profiles` RPC instead of selecting from the
+  /// users table directly — RLS normally blocks reading *other* users' rows,
+  /// which is why backer avatars came back empty. The RPC runs SECURITY
+  /// DEFINER and returns only safe fields, so no PII (phone, address, IDs) is
+  /// exposed. `phone` is left blank since callers only need id/name/pic.
   Future<Either<Failure, List<UserModel>>> getUsersByIds(List<String> ids) async {
     if (ids.isEmpty) return const Right([]);
     try {
-      final response = await _supabase
-          .from(TableNames.usersTable)
-          .select()
-          .inFilter('id', ids);
+      final response = await _supabase.rpc(
+        'get_public_profiles',
+        params: {'p_ids': ids},
+      );
 
-      final list = (response as List<dynamic>)
-          .map((e) => UserModel.fromJson(e as Map<String, dynamic>))
-          .toList();
+      final list = (response as List<dynamic>).map((e) {
+        final map = e as Map<String, dynamic>;
+        return UserModel(
+          id: map['id'] as String,
+          phone: '',
+          fullName: map['full_name'] as String?,
+          profilePicUrl: map['profile_pic_url'] as String?,
+        );
+      }).toList();
       return Right(list);
     } catch (e) {
       return Left(ApiFailure(message: 'Failed to fetch users: $e'));

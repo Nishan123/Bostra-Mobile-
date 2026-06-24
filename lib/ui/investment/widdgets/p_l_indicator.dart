@@ -17,7 +17,6 @@ class PLIndicator extends StatelessWidget {
         Icon(
           diff < 0 ? LucideIcons.arrow_down : LucideIcons.arrow_up,
           size: 22,
-          fontWeight: FontWeight.w900,
         ),
 
       ],

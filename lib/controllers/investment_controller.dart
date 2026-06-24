@@ -1,5 +1,6 @@
 import 'package:bostra/constants/table_names.dart';
 import 'package:bostra/failure/failure.dart';
+import 'package:bostra/models/backer_model.dart';
 import 'package:bostra/models/investment_model.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -69,4 +70,38 @@ class InvestmentController {
       return Left(ApiFailure(message: 'Failed to fetch investments: $e'));
     }
   }
+
+  /// Fetches the backers of a campaign (name, profile pic, total invested),
+  /// via the `get_campaign_backers` RPC. The RPC runs SECURITY DEFINER so it
+  /// can read other users' profiles regardless of RLS, exposing only safe
+  /// fields. Ordered by amount, highest first.
+  Future<Either<Failure, List<BackerModel>>> getCampaignBackers(
+    String campaignId,
+  ) async {
+    try {
+      final response = await _supabase.rpc(
+        'get_campaign_backers',
+        params: {'p_campaign_id': campaignId},
+      );
+
+      final list = (response as List<dynamic>)
+          .map((e) => BackerModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+      return Right(list);
+    } catch (e) {
+      return Left(ApiFailure(message: 'Failed to fetch backers: $e'));
+    }
+  }
 }
+
+/// Async list of a campaign's backers, keyed by campaign id.
+final campaignBackersProvider =
+    FutureProvider.family<List<BackerModel>, String>((ref, campaignId) async {
+  if (campaignId.isEmpty) return const [];
+  final controller = ref.watch(investmentControllerProvider);
+  final result = await controller.getCampaignBackers(campaignId);
+  return result.fold(
+    (failure) => throw Exception(failure.errorMessage),
+    (backers) => backers,
+  );
+});

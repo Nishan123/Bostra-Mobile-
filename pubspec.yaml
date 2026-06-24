@@ -46,6 +46,9 @@ dependencies:
   equatable: ^2.0.8
   dartz: ^0.10.1
   shared_preferences: ^2.3.0
+  youtube_player_flutter: ^10.0.1
+  http: ^1.2.2
+  flutter_dotenv: ^6.0.0
 
 dev_dependencies:
   flutter_test:
@@ -81,6 +84,7 @@ flutter:
   assets:
     - assets/images/
     - assets/svgs/
+    - .env
 
   # To add assets to your application, add an assets section, like this:
   # assets:

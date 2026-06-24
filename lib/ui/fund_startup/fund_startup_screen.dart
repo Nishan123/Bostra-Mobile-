@@ -4,6 +4,7 @@ import 'package:bostra/theme/app_text_style.dart';
 import 'package:bostra/ui/fund_startup/state/fund_startup_state.dart';
 import 'package:bostra/ui/fund_startup/view_model/fund_startup_view_model.dart';
 import 'package:bostra/ui/investment/view_model/investment_tab_view_model.dart';
+import 'package:bostra/ui/payment/widgets/payment_bottom_sheet.dart';
 import 'package:bostra/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -276,10 +277,34 @@ class _FundStartupScreenState extends ConsumerState<FundStartupScreen> {
         child: PrimaryButton(
           text: 'Next',
           isLoading: state.status == FundStatus.loading,
-          onTap: () => vm.submitInvestment(),
+          onTap: () => _startPayment(context, vm),
         ),
       ),
     );
+  }
+
+  /// Validates input, then shows the mock payment sheet. Only after the card
+  /// is "charged" do we run the real funding via [submitInvestment].
+  Future<void> _startPayment(
+    BuildContext context,
+    FundStartupViewModel vm,
+  ) async {
+    if (!vm.validateForPayment()) return;
+
+    final double amount =
+        ref.read(fundStartupViewModelProvider(_campaignId)).amount ?? 0;
+
+    final result = await PaymentBottomSheet.show(
+      context,
+      amount: amount,
+      campaign: c,
+    );
+
+    // Sheet dismissed without completing payment.
+    if (result == null || !mounted) return;
+
+    // Card accepted — fund the campaign for real.
+    await vm.submitInvestment();
   }
 
   void _showSuccess(BuildContext context) {

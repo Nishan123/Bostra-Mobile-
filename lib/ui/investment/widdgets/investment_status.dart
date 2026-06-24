@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 
 enum InvestmentStatus {
   active,
-  raisingFund,
+  raising,
   stopped;
 
   String get text {
     switch (this) {
       case InvestmentStatus.active:
         return "Active";
-      case InvestmentStatus.raisingFund:
-        return "Raising Fund";
+      case InvestmentStatus.raising:
+        return "Raising";
       case InvestmentStatus.stopped:
         return "Stopped";
     }
@@ -21,10 +21,25 @@ enum InvestmentStatus {
     switch (this) {
       case InvestmentStatus.active:
         return AppColors.primaryColor;
-      case InvestmentStatus.raisingFund:
-        return AppColors.yelloColor;
+      case InvestmentStatus.raising:
+        return const Color.fromARGB(255, 60, 255, 0); // Bright green from screenshot
       case InvestmentStatus.stopped:
         return AppColors.redColor;
+    }
+  }
+
+  static InvestmentStatus fromJson(String value) {
+    switch (value.toLowerCase()) {
+      case 'completed':
+        return InvestmentStatus.active;
+      case 'active':
+      case 'verified':
+      case 'raising':
+      case 'raisingfund':
+        return InvestmentStatus.raising;
+      case 'stopped':
+      default:
+        return InvestmentStatus.stopped;
     }
   }
 }
@@ -36,7 +51,7 @@ class InvestmentStatusWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
         color: status.color,
         borderRadius: BorderRadius.circular(4),

@@ -1,3 +1,5 @@
+import 'package:bostra/ui/investment/widdgets/investment_status.dart';
+
 class MonthProjection {
   final int monthNumber;
   final String monthLabel;
@@ -100,7 +102,7 @@ class CampaignModel {
   final double minimumInvestment;
 
   // ── Status & Metadata ──
-  final String status; // 'draft', 'pending', 'verified', 'active', 'completed', 'rejected'
+  final InvestmentStatus status;
   final bool isVerified;
   final bool isFeatured;
   final String? rejectionReason;
@@ -169,7 +171,7 @@ class CampaignModel {
     this.minimumInvestment = 0.0,
 
     // Status & Metadata
-    this.status = 'draft',
+    this.status = InvestmentStatus.stopped,
     this.isVerified = false,
     this.isFeatured = false,
     this.rejectionReason,
@@ -224,7 +226,7 @@ class CampaignModel {
     int? totalInvestors,
     double? equityOffered,
     double? minimumInvestment,
-    String? status,
+    InvestmentStatus? status,
     bool? isVerified,
     bool? isFeatured,
     String? rejectionReason,
@@ -328,7 +330,9 @@ class CampaignModel {
       totalInvestors: json['total_investors'] as int? ?? 0,
       equityOffered: (json['equity_offered'] as num?)?.toDouble() ?? 0.0,
       minimumInvestment: (json['minimum_investment'] as num?)?.toDouble() ?? 0.0,
-      status: json['status'] as String? ?? 'draft',
+      status: json['status'] != null
+          ? InvestmentStatus.fromJson(json['status'].toString())
+          : InvestmentStatus.stopped,
       isVerified: json['is_verified'] as bool? ?? false,
       isFeatured: json['is_featured'] as bool? ?? false,
       rejectionReason: json['rejection_reason'] as String?,
@@ -394,7 +398,7 @@ class CampaignModel {
       'total_investors': totalInvestors,
       'equity_offered': equityOffered,
       'minimum_investment': minimumInvestment,
-      'status': status,
+      'status': status.name,
       'is_verified': isVerified,
       'is_featured': isFeatured,
       'rejection_reason': rejectionReason,

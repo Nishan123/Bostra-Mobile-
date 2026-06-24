@@ -1,26 +1,45 @@
+import 'package:bostra/models/portfolio_models.dart';
 import 'package:bostra/theme/app_colors.dart';
 import 'package:bostra/theme/app_text_style.dart';
 import 'package:bostra/ui/investment/widdgets/p_l_indicator.dart';
 import 'package:flutter/material.dart';
 
 class InvestedCompanyTile extends StatelessWidget {
-  const InvestedCompanyTile({super.key});
+  final PortfolioHolding holding;
+  const InvestedCompanyTile({super.key, required this.holding});
 
   @override
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context).size;
+    final hasLogo =
+        holding.logoUrl != null && holding.logoUrl!.startsWith('http');
+
     return Container(
-      margin: EdgeInsets.only(left: 12, right: 12, bottom: 10),
+      margin: const EdgeInsets.only(left: 12, right: 12, bottom: 10),
       decoration: BoxDecoration(
         border: Border.all(width: 1, color: AppColors.blackColor.withAlpha(80)),
         borderRadius: BorderRadius.circular(8),
       ),
-      padding: EdgeInsets.only(left: 10, right: 6, top: 8, bottom: 8),
+      padding: const EdgeInsets.only(left: 10, right: 6, top: 8, bottom: 8),
       width: mq.width,
       child: Row(
         spacing: 12,
         children: [
-          CircleAvatar(backgroundColor: AppColors.turnaryColor, radius: 20),
+          CircleAvatar(
+            backgroundColor: AppColors.turnaryColor,
+            radius: 20,
+            backgroundImage: hasLogo ? NetworkImage(holding.logoUrl!) : null,
+            child: hasLogo
+                ? null
+                : Text(
+                    holding.startupName.isNotEmpty
+                        ? holding.startupName[0].toUpperCase()
+                        : '?',
+                    style: AppTextStyle.h4.copyWith(
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+          ),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,21 +47,32 @@ class InvestedCompanyTile extends StatelessWidget {
                 Row(
                   spacing: 8,
                   children: [
-                    Text("Startup name", style: AppTextStyle.h4),
+                    Flexible(
+                      child: Text(
+                        holding.startupName,
+                        style: AppTextStyle.h4,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                     Text(
-                      "Rs.12,000",
+                      'Rs ${holding.invested.toStringAsFixed(0)}',
                       style: AppTextStyle.h4.copyWith(
                         color: AppColors.primaryColor,
                       ),
                     ),
                   ],
                 ),
-                Text("Company name", style: AppTextStyle.bodyText2),
+                Text(
+                  holding.companyName ?? holding.sector,
+                  style: AppTextStyle.bodyText2,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ],
             ),
           ),
-          
-          PLIndicator(diff: 12)
+          PLIndicator(diff: holding.returnPct),
         ],
       ),
     );

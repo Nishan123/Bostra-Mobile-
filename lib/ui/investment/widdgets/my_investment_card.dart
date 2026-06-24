@@ -14,15 +14,7 @@ class MyInvestmentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final campaign = investment.campaign;
     
-    // Map campaign status to InvestmentStatus
-    InvestmentStatus status = InvestmentStatus.stopped;
-    if (campaign != null) {
-      if (campaign.status == 'active' || campaign.status == 'verified') {
-        status = InvestmentStatus.raisingFund;
-      } else if (campaign.status == 'completed') {
-        status = InvestmentStatus.active;
-      }
-    }
+    final status = campaign?.status ?? InvestmentStatus.stopped;
 
     return Container(
       decoration: BoxDecoration(
