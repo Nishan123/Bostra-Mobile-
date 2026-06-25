@@ -1,3 +1,4 @@
+import 'package:bostra/controllers/investment_controller.dart';
 import 'package:bostra/models/campaign_model.dart';
 import 'package:bostra/theme/app_colors.dart';
 import 'package:bostra/theme/app_text_style.dart';
@@ -36,6 +37,8 @@ class StartupDetailsScreen extends ConsumerWidget {
       savedCampaignViewModelProvider
           .select((s) => s.savedIds.contains(c.id)),
     );
+    final hasInvested =
+        ref.watch(hasInvestedProvider(c.id ?? '')).valueOrNull ?? false;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -301,12 +304,35 @@ class StartupDetailsScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-              child: PrimaryButton(
-                text: 'Fund Now',
-                onTap: () => context.pushNamed(
-                  'fundStartup',
-                  extra: c,
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (hasInvested) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.check_circle,
+                            size: 16, color: AppColors.primaryColor),
+                        const SizedBox(width: 6),
+                        Text(
+                          "You've backed this campaign",
+                          style: AppTextStyle.bodyText3.copyWith(
+                            color: AppColors.primaryColor,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  PrimaryButton(
+                    text: hasInvested ? 'Add More Funding' : 'Fund Now',
+                    onTap: () => context.pushNamed(
+                      'fundStartup',
+                      extra: c,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

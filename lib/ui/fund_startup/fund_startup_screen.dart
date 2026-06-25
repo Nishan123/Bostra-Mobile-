@@ -1,3 +1,4 @@
+import 'package:bostra/controllers/investment_controller.dart';
 import 'package:bostra/models/campaign_model.dart';
 import 'package:bostra/theme/app_colors.dart';
 import 'package:bostra/theme/app_text_style.dart';
@@ -343,6 +344,10 @@ class _FundStartupScreenState extends ConsumerState<FundStartupScreen> {
               text: 'Done',
               onTap: () {
                 ref.read(investmentTabViewModelProvider.notifier).fetchData();
+                // Refresh one-time-fund state + backers so the details screen
+                // flips to "Add More Funding" immediately.
+                ref.invalidate(hasInvestedProvider(_campaignId));
+                ref.invalidate(campaignBackersProvider(_campaignId));
                 Navigator.of(context).pop(); // close dialog
                 Navigator.of(context).pop(); // pop fund screen
               },

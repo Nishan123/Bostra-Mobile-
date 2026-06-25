@@ -92,6 +92,28 @@ class InvestmentController {
       return Left(ApiFailure(message: 'Failed to fetch backers: $e'));
     }
   }
+
+  /// Whether the signed-in user has already backed [campaignId] — i.e. their
+  /// uid is in the campaign's investors list. Checked against the investments
+  /// ledger (the source of truth for that list) so it never goes stale.
+  Future<Either<Failure, bool>> hasUserInvested(String campaignId) async {
+    try {
+      final uid = _supabase.auth.currentUser?.id;
+      if (uid == null) return const Right(false);
+
+      final response = await _supabase
+          .from(TableNames.investmentsTable)
+          .select('id')
+          .eq('campaign_id', campaignId)
+          .eq('investor_id', uid)
+          .limit(1)
+          .maybeSingle();
+
+      return Right(response != null);
+    } catch (e) {
+      return Left(ApiFailure(message: 'Failed to check funding status: $e'));
+    }
+  }
 }
 
 /// Async list of a campaign's backers, keyed by campaign id.
@@ -104,4 +126,15 @@ final campaignBackersProvider =
     (failure) => throw Exception(failure.errorMessage),
     (backers) => backers,
   );
+});
+
+/// True when the signed-in user has already backed [campaignId]. Drives the
+/// one-time-fund UX: "Fund Now" for new backers, "Add More Funding" for
+/// existing ones. Defaults to false on error so funding is never wrongly blocked.
+final hasInvestedProvider =
+    FutureProvider.family<bool, String>((ref, campaignId) async {
+  if (campaignId.isEmpty) return false;
+  final controller = ref.watch(investmentControllerProvider);
+  final result = await controller.hasUserInvested(campaignId);
+  return result.fold((_) => false, (invested) => invested);
 });
