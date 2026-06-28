@@ -41,6 +41,12 @@ class CampaignController {
           .single();
       return Right(CampaignModel.fromJson(response));
     } catch (e) {
+      if (e.toString().contains('must be verified')) {
+        return const Left(ApiFailure(
+          message:
+              'This company must be verified before you can launch a campaign.',
+        ));
+      }
       return Left(ApiFailure(message: "Failed to start campaign: $e"));
     }
   }
@@ -105,6 +111,55 @@ class CampaignController {
       return Right(campaigns);
     } catch (e) {
       return Left(ApiFailure(message: "Failed to fetch user campaigns: $e"));
+    }
+  }
+
+  // Get all campaigns launched under a given company.
+  Future<Either<Failure, List<CampaignModel>>> getCampaignsByCompany(
+    String companyId,
+  ) async {
+    try {
+      final response = await _supabase
+          .from(TableNames.campaignTable)
+          .select()
+          .eq('company_id', companyId)
+          .order('created_at', ascending: false);
+      final campaigns = (response as List<dynamic>)
+          .map((e) => CampaignModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+      return Right(campaigns);
+    } catch (e) {
+      return Left(ApiFailure(message: "Failed to fetch company campaigns: $e"));
+    }
+  }
+
+  /// Founder management action: update a campaign's target amount and/or
+  /// funding end date. Only the provided fields are written. Authorization is
+  /// enforced by the `campaign_update_founders` RLS policy (creator, owner, or
+  /// any active founder of the campaign's company).
+  Future<Either<Failure, CampaignModel>> updateCampaignFunding({
+    required String campaignId,
+    double? targetAmount,
+    DateTime? endDate,
+  }) async {
+    try {
+      final updates = <String, dynamic>{};
+      if (targetAmount != null) updates['target_amount'] = targetAmount;
+      if (endDate != null) updates['end_date'] = endDate.toIso8601String();
+
+      if (updates.isEmpty) {
+        return const Left(GeneralFailure('Nothing to update.'));
+      }
+
+      final response = await _supabase
+          .from(TableNames.campaignTable)
+          .update(updates)
+          .eq('id', campaignId)
+          .select()
+          .single();
+      return Right(CampaignModel.fromJson(response));
+    } catch (e) {
+      return Left(ApiFailure(message: "Failed to update campaign: $e"));
     }
   }
 }

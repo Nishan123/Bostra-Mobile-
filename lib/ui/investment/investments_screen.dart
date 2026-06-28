@@ -30,6 +30,7 @@ class _InvestmentsScreenState extends ConsumerState<InvestmentsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Investments & Startups"),
+        centerTitle: false,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
           child: Container(

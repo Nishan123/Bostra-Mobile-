@@ -63,6 +63,7 @@ class CampaignModel {
   // ── Identity ──
   final String? id;
   final String? userId;
+  final String? companyId;
 
   // ── Screen 1: Introductions ──
   final String startupName;
@@ -134,6 +135,7 @@ class CampaignModel {
     // Identity
     this.id,
     this.userId,
+    this.companyId,
 
     // Screen 1
     this.startupName = '',
@@ -171,7 +173,7 @@ class CampaignModel {
     this.minimumInvestment = 0.0,
 
     // Status & Metadata
-    this.status = InvestmentStatus.stopped,
+    this.status = InvestmentStatus.initial,
     this.isVerified = false,
     this.isFeatured = false,
     this.rejectionReason,
@@ -203,6 +205,7 @@ class CampaignModel {
   CampaignModel copyWith({
     String? id,
     String? userId,
+    String? companyId,
     String? startupName,
     String? shortTagline,
     String? industry,
@@ -249,6 +252,7 @@ class CampaignModel {
     return CampaignModel(
       id: id ?? this.id,
       userId: userId ?? this.userId,
+      companyId: companyId ?? this.companyId,
       startupName: startupName ?? this.startupName,
       shortTagline: shortTagline ?? this.shortTagline,
       industry: industry ?? this.industry,
@@ -298,6 +302,7 @@ class CampaignModel {
     return CampaignModel(
       id: json['id'] as String?,
       userId: json['user_id'] as String?,
+      companyId: json['company_id'] as String?,
       startupName: json['startup_name'] as String? ?? '',
       shortTagline: json['short_tagline'] as String? ?? '',
       industry: json['industry'] as String? ?? '',
@@ -332,7 +337,7 @@ class CampaignModel {
       minimumInvestment: (json['minimum_investment'] as num?)?.toDouble() ?? 0.0,
       status: json['status'] != null
           ? InvestmentStatus.fromJson(json['status'].toString())
-          : InvestmentStatus.stopped,
+          : InvestmentStatus.initial,
       isVerified: json['is_verified'] as bool? ?? false,
       isFeatured: json['is_featured'] as bool? ?? false,
       rejectionReason: json['rejection_reason'] as String?,
@@ -375,6 +380,7 @@ class CampaignModel {
     return {
       'id': id,
       'user_id': userId,
+      'company_id': companyId,
       'startup_name': startupName,
       'short_tagline': shortTagline,
       'industry': industry,
@@ -430,6 +436,37 @@ class CampaignModel {
 
   /// Whether the campaign has reached its funding goal
   bool get isFunded => currentFunding >= targetAmount;
+
+  /// True once the funding due date has fully passed (end of that day).
+  bool get isPastDueDate {
+    final d = endDate;
+    if (d == null) return false;
+    final deadline = DateTime(d.year, d.month, d.day, 23, 59, 59);
+    return DateTime.now().isAfter(deadline);
+  }
+
+  /// Whether the campaign can still accept funding (due date not yet passed).
+  bool get isFundingOpen => !isPastDueDate;
+
+  /// Whole days remaining until the due date. 0 on the last day, negative once
+  /// past. Null when no due date is set.
+  int? get daysLeft {
+    final d = endDate;
+    if (d == null) return null;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final due = DateTime(d.year, d.month, d.day);
+    return due.difference(today).inDays;
+  }
+
+  /// Short countdown label for cards, e.g. "12 days left".
+  String get fundingCountdownLabel {
+    final days = daysLeft;
+    if (days == null) return 'No deadline';
+    if (days < 0) return 'Funding closed';
+    if (days == 0) return 'Last day';
+    return days == 1 ? '1 day left' : '$days days left';
+  }
 
   @override
   bool operator ==(Object other) {

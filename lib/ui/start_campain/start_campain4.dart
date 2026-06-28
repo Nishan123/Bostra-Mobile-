@@ -7,6 +7,7 @@ import 'package:bostra/ui/start_campain/state/campaign_state.dart';
 import 'package:bostra/widgets/custom_snackbar.dart';
 import 'package:bostra/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -20,6 +21,7 @@ class StartCampain4 extends ConsumerStatefulWidget {
 class _StartCampain4State extends ConsumerState<StartCampain4> {
   late final TextEditingController _amountController;
   bool _agreedToTerms = false;
+  DateTime? _dueDate;
 
   @override
   void initState() {
@@ -29,6 +31,7 @@ class _StartCampain4State extends ConsumerState<StartCampain4> {
       text: campaign.targetAmount > 0 ? campaign.targetAmount.toStringAsFixed(0) : '',
     );
     _agreedToTerms = campaign.agreedToTerms;
+    _dueDate = campaign.endDate;
   }
 
   @override
@@ -36,6 +39,38 @@ class _StartCampain4State extends ConsumerState<StartCampain4> {
     _amountController.dispose();
     super.dispose();
   }
+
+  /// Earliest selectable due date: 5 days from today (≈2 days for verification
+  /// plus a funding buffer).
+  DateTime get _minDueDate {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day).add(const Duration(days: 5));
+  }
+
+  Future<void> _pickDueDate() async {
+    final first = _minDueDate;
+    final initial =
+        (_dueDate != null && !_dueDate!.isBefore(first)) ? _dueDate! : first;
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: first,
+      lastDate: first.add(const Duration(days: 730)),
+      builder: (context, child) => Theme(
+        data: Theme.of(context).copyWith(
+          colorScheme: ColorScheme.light(
+            primary: AppColors.primaryColor,
+            onPrimary: Colors.white,
+          ),
+        ),
+        child: child!,
+      ),
+    );
+    if (picked != null) setState(() => _dueDate = picked);
+  }
+
+  String _formatDate(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +161,63 @@ class _StartCampain4State extends ConsumerState<StartCampain4> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 20),
+
+                    // Funding due date
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text('Funding due date', style: AppTextStyle.h4),
+                    ),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: InkWell(
+                        onTap: _pickDueDate,
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: AppColors.primaryColor,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                LucideIcons.calendar,
+                                size: 18,
+                                color: AppColors.primaryColor,
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                _dueDate != null
+                                    ? _formatDate(_dueDate!)
+                                    : 'Select due date',
+                                style: AppTextStyle.normalText.copyWith(
+                                  color: _dueDate != null
+                                      ? AppColors.blackColor
+                                      : AppColors.blackColor.withAlpha(100),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'Pick a date at least 5 days away — campaigns take ~2 days to verify. Funding closes automatically once this date passes.',
+                        style: AppTextStyle.bodyText3,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
 
                     // Verification notice
                     Padding(
@@ -214,8 +305,17 @@ class _StartCampain4State extends ConsumerState<StartCampain4> {
                   return;
                 }
 
+                if (_dueDate == null) {
+                  CustomSnackBar.showErrorSnackBar(
+                    context,
+                    "Please select a funding due date.",
+                  );
+                  return;
+                }
+
                 final notifier = ref.read(campaignViewModelProvider.notifier);
                 notifier.updateTargetAmount(amount);
+                notifier.updateEndDate(_dueDate!);
                 notifier.updateAgreedToTerms(_agreedToTerms);
                 notifier.submitCampaign();
               },

@@ -10,7 +10,7 @@ final fundStartupViewModelProvider =
 /// ViewModel scoped to a single campaign ID.
 /// The `arg` is the campaignId.
 class FundStartupViewModel extends FamilyNotifier<FundStartupState, String> {
-  late final InvestmentController _controller;
+  late InvestmentController _controller;
 
   @override
   FundStartupState build(String arg) {

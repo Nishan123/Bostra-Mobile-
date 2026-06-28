@@ -275,11 +275,28 @@ class _FundStartupScreenState extends ConsumerState<FundStartupScreen> {
           bottom: MediaQuery.of(context).padding.bottom + 16,
           top: 12,
         ),
-        child: PrimaryButton(
-          text: 'Next',
-          isLoading: state.status == FundStatus.loading,
-          onTap: () => _startPayment(context, vm),
-        ),
+        child: c.isPastDueDate
+            ? Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: AppColors.blackColor.withAlpha(15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  'Funding closed — due date passed',
+                  style: AppTextStyle.bodyText1.copyWith(
+                    color: AppColors.blackColor.withAlpha(140),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              )
+            : PrimaryButton(
+                text: 'Next',
+                isLoading: state.status == FundStatus.loading,
+                onTap: () => _startPayment(context, vm),
+              ),
       ),
     );
   }
@@ -290,6 +307,15 @@ class _FundStartupScreenState extends ConsumerState<FundStartupScreen> {
     BuildContext context,
     FundStartupViewModel vm,
   ) async {
+    if (c.isPastDueDate) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Funding has closed for this campaign.'),
+          backgroundColor: AppColors.redColor,
+        ),
+      );
+      return;
+    }
     if (!vm.validateForPayment()) return;
 
     final double amount =

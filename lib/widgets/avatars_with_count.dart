@@ -1,4 +1,5 @@
 import 'package:bostra/controllers/user_controller.dart';
+import 'package:bostra/theme/app_colors.dart';
 import 'package:bostra/theme/app_text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -66,7 +67,7 @@ class AvatarsWithCount extends ConsumerWidget {
                       height: avatarSize,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2.5),
+                        border: Border.all(color:AppColors.whiteColor, width: 2.5),
                       ),
                       child: ClipOval(
                         child: hasValidUrl

@@ -1,7 +1,10 @@
+import 'package:bostra/models/company_model.dart';
 import 'package:bostra/theme/app_colors.dart';
 import 'package:bostra/theme/app_text_style.dart';
 import 'package:bostra/ui/auth/state/auth_state.dart';
 import 'package:bostra/ui/auth/view_models/auth_view_model.dart';
+import 'package:bostra/ui/company/state/my_companies_state.dart';
+import 'package:bostra/ui/company/view_model/my_companies_view_model.dart';
 import 'package:bostra/ui/profile/state/profile_state.dart';
 import 'package:bostra/ui/profile/view_model/profile_view_model.dart';
 import 'package:bostra/ui/profile/widgets/stat_card.dart';
@@ -36,10 +39,12 @@ class ProfileScreen extends ConsumerWidget {
 
     final user = profileState.user;
     final isLoadingProfile = profileState.status == ProfileStatus.loading;
+    final companiesState = ref.watch(myCompaniesViewModelProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text("Profile"),
+        centerTitle: false,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
           child: Container(
@@ -66,6 +71,7 @@ class ProfileScreen extends ConsumerWidget {
                   authState: authState,
                   ref: ref,
                   user: user,
+                  companiesState: companiesState,
                 ),
     );
   }
@@ -80,11 +86,13 @@ class _ProfileBody extends StatelessWidget {
     required this.authState,
     required this.ref,
     required this.user,
+    required this.companiesState,
   });
 
   final AuthState authState;
   final WidgetRef ref;
   final dynamic user; // UserModel?
+  final MyCompaniesState companiesState;
 
   @override
   Widget build(BuildContext context) {
@@ -174,14 +182,19 @@ class _ProfileBody extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 24),
-
-          PrimaryButton(
-            margin: const EdgeInsets.symmetric(horizontal: 12),
-            text: "Start your campaign",
-            onTap: () => context.pushNamed("startCampaign1"),
+          const SizedBox(height: 8),
+          Divider(
+            thickness: 0.6,
+            indent: 12,
+            endIndent: 12,
+            height: 24,
+            color: AppColors.blackColor.withAlpha(40),
           ),
-          const SizedBox(height: 12),
+
+          // Company tile when the user has one; otherwise the entry button.
+          _buildCompanySection(context),
+
+          const SizedBox(height: 16),
 
           PrimaryButton(
             margin: const EdgeInsets.symmetric(horizontal: 12),
@@ -194,6 +207,121 @@ class _ProfileBody extends StatelessWidget {
 
           const SizedBox(height: 24),
         ],
+      ),
+    );
+  }
+
+  /// Shows a tile per company the user belongs to, or the entry button when
+  /// they have none.
+  Widget _buildCompanySection(BuildContext context) {
+    switch (companiesState.status) {
+      case MyCompaniesStatus.initial:
+      case MyCompaniesStatus.loading:
+        return const Padding(
+          padding: EdgeInsets.symmetric(vertical: 10),
+          child: SizedBox(
+            height: 24,
+            width: 24,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        );
+      case MyCompaniesStatus.error:
+        return _myCompaniesButton(context);
+      case MyCompaniesStatus.success:
+        if (companiesState.companies.isEmpty) {
+          return _myCompaniesButton(context);
+        }
+        return Column(
+          children: [
+            for (final company in companiesState.companies)
+              _ProfileCompanyTile(
+                company: company,
+                onTap: () =>
+                    context.pushNamed('companyDetail', extra: company),
+              ),
+          ],
+        );
+    }
+  }
+
+  Widget _myCompaniesButton(BuildContext context) {
+    return PrimaryButton(
+      margin: const EdgeInsets.symmetric(horizontal: 12),
+      text: "My Companies",
+      onTap: () => context.pushNamed("myCompanies"),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Company tile — shown on the profile when the user has a company
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _ProfileCompanyTile extends StatelessWidget {
+  const _ProfileCompanyTile({required this.company, required this.onTap});
+
+  final CompanyModel company;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasLogo = company.logoUrl != null && company.logoUrl!.isNotEmpty;
+
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 30,
+              backgroundColor: AppColors.blackColor.withAlpha(20),
+              backgroundImage: hasLogo ? NetworkImage(company.logoUrl!) : null,
+              child: hasLogo
+                  ? null
+                  : Text(
+                      company.name.isNotEmpty
+                          ? company.name[0].toUpperCase()
+                          : '?',
+                      style: AppTextStyle.h3.copyWith(
+                        color: AppColors.blackColor.withAlpha(120),
+                      ),
+                    ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          company.name,
+                          style: AppTextStyle.h3,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (company.isVerified) ...[
+                        const SizedBox(width: 6),
+                        Icon(Icons.verified,
+                            color: AppColors.blueColor, size: 18),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    company.isVerified ? 'Verified' : 'Pending verification',
+                    style: AppTextStyle.bodyText2,
+                  ),
+                ],
+              ),
+            ),
+            Icon(LucideIcons.chevron_right,
+                color: AppColors.blackColor, size: 22),
+          ],
+        ),
       ),
     );
   }
@@ -223,13 +351,7 @@ class _InfoTile extends StatelessWidget {
           Icon(icon, size: 18, color: AppColors.primaryColor),
           const SizedBox(width: 12),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: AppTextStyle.bodyText3),
-                Text(value, style: AppTextStyle.bodyText1),
-              ],
-            ),
+            child: Text(value, style: AppTextStyle.bodyText1),
           ),
         ],
       ),

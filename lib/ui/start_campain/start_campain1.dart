@@ -41,10 +41,14 @@ class _StartCampain1State extends ConsumerState<StartCampain1> {
   }
 
   MonthProjection _getProjection(int monthNumber, String monthLabel) {
-    final projections = ref.read(campaignViewModelProvider).campaign.monthProjections;
+    final projections = ref
+        .read(campaignViewModelProvider)
+        .campaign
+        .monthProjections;
     return projections.firstWhere(
       (p) => p.monthNumber == monthNumber,
-      orElse: () => MonthProjection(monthNumber: monthNumber, monthLabel: monthLabel),
+      orElse: () =>
+          MonthProjection(monthNumber: monthNumber, monthLabel: monthLabel),
     );
   }
 
@@ -68,10 +72,7 @@ class _StartCampain1State extends ConsumerState<StartCampain1> {
                     // Introductions section
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        'Introductions',
-                        style: AppTextStyle.h2,
-                      ),
+                      child: Text('Introductions', style: AppTextStyle.h2),
                     ),
                     const SizedBox(height: 16),
 
@@ -81,7 +82,9 @@ class _StartCampain1State extends ConsumerState<StartCampain1> {
                       hintText: 'Example : Bluetooth umbrella',
                       controller: _nameController,
                       onChanged: (value) {
-                        ref.read(campaignViewModelProvider.notifier).updateStartupName(value);
+                        ref
+                            .read(campaignViewModelProvider.notifier)
+                            .updateStartupName(value);
                       },
                     ),
                     const SizedBox(height: 16),
@@ -92,7 +95,9 @@ class _StartCampain1State extends ConsumerState<StartCampain1> {
                       hintText: 'Describe your startup in one shot',
                       controller: _taglineController,
                       onChanged: (value) {
-                        ref.read(campaignViewModelProvider.notifier).updateShortTagline(value);
+                        ref
+                            .read(campaignViewModelProvider.notifier)
+                            .updateShortTagline(value);
                       },
                     ),
                     const SizedBox(height: 16),
@@ -107,7 +112,9 @@ class _StartCampain1State extends ConsumerState<StartCampain1> {
                             _selectedIndustry = value;
                           });
                           if (value != null) {
-                            ref.read(campaignViewModelProvider.notifier).updateIndustry(value);
+                            ref
+                                .read(campaignViewModelProvider.notifier)
+                                .updateIndustry(value);
                           }
                         },
                       ),
@@ -149,25 +156,33 @@ class _StartCampain1State extends ConsumerState<StartCampain1> {
                     MonthProjectionCard(
                       monthNumber: 1,
                       monthLabel: 'Jan 2027',
-                      initialObjectives: _getProjection(1, 'Jan 2027').objectives,
+                      initialObjectives: _getProjection(
+                        1,
+                        'Jan 2027',
+                      ).objectives,
                       initialGoals: _getProjection(1, 'Jan 2027').goals,
-                      initialInitiative: _getProjection(1, 'Jan 2027').initiative,
+                      initialInitiative: _getProjection(
+                        1,
+                        'Jan 2027',
+                      ).initiative,
                       onObjectivesChanged: (val) {
-                        ref.read(campaignViewModelProvider.notifier).updateMonthProjection(
+                        ref
+                            .read(campaignViewModelProvider.notifier)
+                            .updateMonthProjection(
                               1,
                               'Jan 2027',
                               objectives: val,
                             );
                       },
                       onGoalsChanged: (val) {
-                        ref.read(campaignViewModelProvider.notifier).updateMonthProjection(
-                              1,
-                              'Jan 2027',
-                              goals: val,
-                            );
+                        ref
+                            .read(campaignViewModelProvider.notifier)
+                            .updateMonthProjection(1, 'Jan 2027', goals: val);
                       },
                       onInitiativeChanged: (val) {
-                        ref.read(campaignViewModelProvider.notifier).updateMonthProjection(
+                        ref
+                            .read(campaignViewModelProvider.notifier)
+                            .updateMonthProjection(
                               1,
                               'Jan 2027',
                               initiative: val,
@@ -180,25 +195,33 @@ class _StartCampain1State extends ConsumerState<StartCampain1> {
                     MonthProjectionCard(
                       monthNumber: 2,
                       monthLabel: 'Feb 2027',
-                      initialObjectives: _getProjection(2, 'Feb 2027').objectives,
+                      initialObjectives: _getProjection(
+                        2,
+                        'Feb 2027',
+                      ).objectives,
                       initialGoals: _getProjection(2, 'Feb 2027').goals,
-                      initialInitiative: _getProjection(2, 'Feb 2027').initiative,
+                      initialInitiative: _getProjection(
+                        2,
+                        'Feb 2027',
+                      ).initiative,
                       onObjectivesChanged: (val) {
-                        ref.read(campaignViewModelProvider.notifier).updateMonthProjection(
+                        ref
+                            .read(campaignViewModelProvider.notifier)
+                            .updateMonthProjection(
                               2,
                               'Feb 2027',
                               objectives: val,
                             );
                       },
                       onGoalsChanged: (val) {
-                        ref.read(campaignViewModelProvider.notifier).updateMonthProjection(
-                              2,
-                              'Feb 2027',
-                              goals: val,
-                            );
+                        ref
+                            .read(campaignViewModelProvider.notifier)
+                            .updateMonthProjection(2, 'Feb 2027', goals: val);
                       },
                       onInitiativeChanged: (val) {
-                        ref.read(campaignViewModelProvider.notifier).updateMonthProjection(
+                        ref
+                            .read(campaignViewModelProvider.notifier)
+                            .updateMonthProjection(
                               2,
                               'Feb 2027',
                               initiative: val,
@@ -211,25 +234,33 @@ class _StartCampain1State extends ConsumerState<StartCampain1> {
                     MonthProjectionCard(
                       monthNumber: 3,
                       monthLabel: 'Mar 2027',
-                      initialObjectives: _getProjection(3, 'Mar 2027').objectives,
+                      initialObjectives: _getProjection(
+                        3,
+                        'Mar 2027',
+                      ).objectives,
                       initialGoals: _getProjection(3, 'Mar 2027').goals,
-                      initialInitiative: _getProjection(3, 'Mar 2027').initiative,
+                      initialInitiative: _getProjection(
+                        3,
+                        'Mar 2027',
+                      ).initiative,
                       onObjectivesChanged: (val) {
-                        ref.read(campaignViewModelProvider.notifier).updateMonthProjection(
+                        ref
+                            .read(campaignViewModelProvider.notifier)
+                            .updateMonthProjection(
                               3,
                               'Mar 2027',
                               objectives: val,
                             );
                       },
                       onGoalsChanged: (val) {
-                        ref.read(campaignViewModelProvider.notifier).updateMonthProjection(
-                              3,
-                              'Mar 2027',
-                              goals: val,
-                            );
+                        ref
+                            .read(campaignViewModelProvider.notifier)
+                            .updateMonthProjection(3, 'Mar 2027', goals: val);
                       },
                       onInitiativeChanged: (val) {
-                        ref.read(campaignViewModelProvider.notifier).updateMonthProjection(
+                        ref
+                            .read(campaignViewModelProvider.notifier)
+                            .updateMonthProjection(
                               3,
                               'Mar 2027',
                               initiative: val,
@@ -244,18 +275,20 @@ class _StartCampain1State extends ConsumerState<StartCampain1> {
 
             // Next button
             PrimaryButton(
-              margin: const EdgeInsets.only(
-                left: 16,
-                right: 16,
-                bottom: 16,
-              ),
+              margin: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
               text: 'Next',
               onTap: () {
                 // Perform a final update to make sure everything is in sync
-                ref.read(campaignViewModelProvider.notifier).updateStartupName(_nameController.text);
-                ref.read(campaignViewModelProvider.notifier).updateShortTagline(_taglineController.text);
+                ref
+                    .read(campaignViewModelProvider.notifier)
+                    .updateStartupName(_nameController.text);
+                ref
+                    .read(campaignViewModelProvider.notifier)
+                    .updateShortTagline(_taglineController.text);
                 if (_selectedIndustry != null) {
-                  ref.read(campaignViewModelProvider.notifier).updateIndustry(_selectedIndustry!);
+                  ref
+                      .read(campaignViewModelProvider.notifier)
+                      .updateIndustry(_selectedIndustry!);
                 }
                 context.push('/start-campaign-2');
               },

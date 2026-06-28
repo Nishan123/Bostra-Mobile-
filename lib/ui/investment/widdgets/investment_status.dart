@@ -2,12 +2,15 @@ import 'package:bostra/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 enum InvestmentStatus {
+  initial,
   active,
   raising,
   stopped;
 
   String get text {
     switch (this) {
+      case InvestmentStatus.initial:
+        return "Initial";
       case InvestmentStatus.active:
         return "Active";
       case InvestmentStatus.raising:
@@ -19,6 +22,8 @@ enum InvestmentStatus {
 
   Color get color {
     switch (this) {
+      case InvestmentStatus.initial:
+        return AppColors.blackColor.withAlpha(120); // neutral grey
       case InvestmentStatus.active:
         return AppColors.primaryColor;
       case InvestmentStatus.raising:
@@ -38,8 +43,10 @@ enum InvestmentStatus {
       case 'raisingfund':
         return InvestmentStatus.raising;
       case 'stopped':
-      default:
         return InvestmentStatus.stopped;
+      case 'initial':
+      default:
+        return InvestmentStatus.initial;
     }
   }
 }

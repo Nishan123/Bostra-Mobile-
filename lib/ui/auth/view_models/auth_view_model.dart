@@ -9,8 +9,8 @@ import 'package:bostra/ui/investment/view_model/investment_tab_view_model.dart';
 final authViewModelProvider = NotifierProvider<AuthViewModel, AuthState>(AuthViewModel.new);
 
 class AuthViewModel extends Notifier<AuthState> {
-  late final AuthController _authController;
-  late final UserController _userController;
+  late AuthController _authController;
+  late UserController _userController;
 
   @override
   AuthState build() {

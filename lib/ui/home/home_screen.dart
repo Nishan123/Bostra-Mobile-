@@ -1,14 +1,18 @@
 import 'package:bostra/constants/assets_path.dart';
 import 'package:bostra/enums/chips_options.dart';
+import 'package:bostra/theme/app_colors.dart';
+import 'package:bostra/theme/app_text_style.dart';
 import 'package:bostra/ui/home/widgets/home_card.dart';
 import 'package:bostra/ui/home/widgets/home_chips.dart';
 import 'package:bostra/ui/home/widgets/home_search_bar.dart';
+import 'package:bostra/ui/notifications/view_model/invitations_view_model.dart';
 import 'package:bostra/ui/start_campain/state/campaign_state.dart';
 import 'package:bostra/ui/start_campain/view_model/get_campaign_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -110,7 +114,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         centerTitle: false,
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(LucideIcons.bell)),
+          _NotificationBell(
+            count: ref.watch(pendingInvitationCountProvider).value ?? 0,
+            onTap: () async {
+              await context.push('/notifications');
+              ref.invalidate(pendingInvitationCountProvider);
+            },
+          ),
           const SizedBox(width: 8),
         ],
       ),
@@ -155,6 +165,50 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Dashboard bell with an unread badge for pending founder invitations.
+class _NotificationBell extends StatelessWidget {
+  final int count;
+  final VoidCallback onTap;
+
+  const _NotificationBell({required this.count, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        IconButton(
+          onPressed: onTap,
+          icon: const Icon(LucideIcons.bell),
+        ),
+        if (count > 0)
+          Positioned(
+            right: 6,
+            top: 6,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+              constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+              decoration: BoxDecoration(
+                color: AppColors.redColor,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: AppColors.whiteColor, width: 1.5),
+              ),
+              child: Text(
+                count > 9 ? '9+' : '$count',
+                textAlign: TextAlign.center,
+                style: AppTextStyle.bodyText3.copyWith(
+                  color: AppColors.whiteColor,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 10,
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

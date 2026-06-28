@@ -6,6 +6,7 @@ import 'package:bostra/ui/portfolio/widgets/invested_company_tile.dart';
 import 'package:bostra/ui/portfolio/widgets/portfolio_chat_sheet.dart';
 import 'package:bostra/ui/portfolio/widgets/portfolio_pie_chart.dart';
 import 'package:bostra/ui/portfolio/widgets/summary_paragraph.dart';
+import 'package:bostra/ui/portfolio/widgets/totals_header.dart';
 import 'package:bostra/widgets/primary_button.dart';
 import 'package:bostra/widgets/widget_title.dart';
 import 'package:flutter/material.dart';
@@ -42,7 +43,7 @@ class _PortfolioScreenState extends ConsumerState<PortfolioScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Portfolio'),
+        title: Text('Portfolio'),
         centerTitle: false,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
@@ -58,8 +59,7 @@ class _PortfolioScreenState extends ConsumerState<PortfolioScreen> {
       ),
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () =>
-              ref.read(portfolioViewModelProvider.notifier).load(),
+          onRefresh: () => ref.read(portfolioViewModelProvider.notifier).load(),
           child: _buildBody(state),
         ),
       ),
@@ -98,7 +98,8 @@ class _PortfolioScreenState extends ConsumerState<PortfolioScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 20),
-          _TotalsHeader(state: state),
+          WidgetTitle(text: "Total Investments"),
+          TotalsHeader(state: state),
 
           const SizedBox(height: 18),
           const WidgetTitle(text: 'Invested Companies'),
@@ -134,73 +135,6 @@ class _PortfolioScreenState extends ConsumerState<PortfolioScreen> {
   }
 }
 
-/// Total invested vs. implied value, with the overall return.
-class _TotalsHeader extends StatelessWidget {
-  final PortfolioState state;
-  const _TotalsHeader({required this.state});
-
-  @override
-  Widget build(BuildContext context) {
-    final up = state.totalReturnPct >= 0;
-    final returnColor = up ? AppColors.primaryColor : AppColors.redColor;
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      decoration: BoxDecoration(
-        color: AppColors.primaryColor.withAlpha(14),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.primaryColor.withAlpha(40)),
-      ),
-      child: Row(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Total Invested', style: AppTextStyle.bodyText2),
-              const SizedBox(height: 4),
-              Text(
-                'Rs ${state.totalInvested.toStringAsFixed(0)}',
-                style: AppTextStyle.h2,
-              ),
-            ],
-          ),
-          const Spacer(),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text('Implied Value', style: AppTextStyle.bodyText2),
-              const SizedBox(height: 4),
-              Text(
-                'Rs ${state.totalImpliedValue.toStringAsFixed(0)}',
-                style: AppTextStyle.h4,
-              ),
-              const SizedBox(height: 2),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    up ? Icons.trending_up : Icons.trending_down,
-                    size: 16,
-                    color: returnColor,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${up ? '+' : ''}${state.totalReturnPct.toStringAsFixed(1)}%',
-                    style: AppTextStyle.bodyText2.copyWith(
-                      color: returnColor,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 /// Renders the AI summary across its loading / success / error states.
 class _SummarySection extends StatelessWidget {
@@ -222,10 +156,7 @@ class _SummarySection extends StatelessWidget {
                 child: CircularProgressIndicator(strokeWidth: 2),
               ),
               const SizedBox(width: 10),
-              Text(
-                'Generating AI summary…',
-                style: AppTextStyle.bodyText2,
-              ),
+              Text('Generating AI summary…', style: AppTextStyle.bodyText2),
             ],
           ),
         );
@@ -235,7 +166,11 @@ class _SummarySection extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.info_outline, size: 16, color: AppColors.blackColor.withAlpha(120)),
+              Icon(
+                Icons.info_outline,
+                size: 16,
+                color: AppColors.blackColor.withAlpha(120),
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(

@@ -16,6 +16,7 @@ class SavedStartupScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Saved Startups'),
+        centerTitle: false,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
           child: Container(

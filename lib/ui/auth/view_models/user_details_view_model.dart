@@ -10,7 +10,7 @@ final userDetailsViewModelProvider =
         UserDetailsViewModel.new);
 
 class UserDetailsViewModel extends Notifier<UserDetailsState> {
-  late final UserController _userController;
+  late UserController _userController;
   final ImagePicker _imagePicker = ImagePicker();
 
   @override

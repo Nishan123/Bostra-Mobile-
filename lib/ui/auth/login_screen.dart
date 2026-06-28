@@ -114,37 +114,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   });
                 },
               ),
-              Padding(
-                padding: EdgeInsets.only(bottom: mq.viewPadding.bottom + 4),
-                child: PrimaryButton(
-                  text: "Next",
-                  isLoading: authState.status == AuthStatus.loading,
-                  onTap: () {
-                    if (!isAgreed) {
-                      CustomSnackBar.showErrorSnackBar(
-                        context,
-                        "You must agree to the privacy policy & legal terms.",
-                      );
-                      return;
-                    }
+              PrimaryButton(
+                text: "Next",
+                isLoading: authState.status == AuthStatus.loading,
+                onTap: () {
+                  if (!isAgreed) {
+                    CustomSnackBar.showErrorSnackBar(
+                      context,
+                      "You must agree to the privacy policy & legal terms.",
+                    );
+                    return;
+                  }
 
-                    final phone = phoneController.text.trim();
-                    if (phone.isEmpty) {
-                      CustomSnackBar.showErrorSnackBar(
-                        context,
-                        "Please enter your phone number.",
-                      );
-                      return;
-                    }
+                  final phone = phoneController.text.trim();
+                  if (phone.isEmpty) {
+                    CustomSnackBar.showErrorSnackBar(
+                      context,
+                      "Please enter your phone number.",
+                    );
+                    return;
+                  }
 
-                    ref
-                        .read(authViewModelProvider.notifier)
-                        .sendOtp(
-                          countryCode: pickedCountry.phoneCode,
-                          phone: phone,
-                        );
-                  },
-                ),
+                  ref
+                      .read(authViewModelProvider.notifier)
+                      .sendOtp(
+                        countryCode: pickedCountry.phoneCode,
+                        phone: phone,
+                      );
+                },
               ),
             ],
           ),

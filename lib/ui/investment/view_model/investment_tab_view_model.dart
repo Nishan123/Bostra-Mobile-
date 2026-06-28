@@ -9,8 +9,8 @@ final investmentTabViewModelProvider =
 );
 
 class InvestmentTabViewModel extends AutoDisposeNotifier<InvestmentTabState> {
-  late final InvestmentController _investmentController;
-  late final CampaignController _campaignController;
+  late InvestmentController _investmentController;
+  late CampaignController _campaignController;
 
   @override
   InvestmentTabState build() {

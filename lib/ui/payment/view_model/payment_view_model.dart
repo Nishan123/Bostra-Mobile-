@@ -8,7 +8,7 @@ final paymentViewModelProvider =
     NotifierProvider<PaymentViewModel, PaymentState>(PaymentViewModel.new);
 
 class PaymentViewModel extends Notifier<PaymentState> {
-  late final PaymentController _paymentController;
+  late PaymentController _paymentController;
 
   @override
   PaymentState build() {

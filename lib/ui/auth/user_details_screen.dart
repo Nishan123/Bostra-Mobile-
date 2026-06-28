@@ -248,8 +248,8 @@ class _UserDetailsScreenState extends ConsumerState<UserDetailsScreen> {
 
               // Next button
               Padding(
-                padding: EdgeInsets.only(
-                  bottom: mq.viewPadding.bottom + 16,
+                padding: const EdgeInsets.only(
+                  bottom: 16,
                   top: 4,
                 ),
                 child: PrimaryButton(

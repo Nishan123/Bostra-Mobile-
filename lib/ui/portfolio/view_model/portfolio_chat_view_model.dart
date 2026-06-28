@@ -11,7 +11,7 @@ final portfolioChatViewModelProvider =
 );
 
 class PortfolioChatViewModel extends Notifier<PortfolioChatState> {
-  late final GeminiController _gemini;
+  late GeminiController _gemini;
 
   static const _greeting = ChatMessage(
     role: ChatRole.assistant,

@@ -144,8 +144,8 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
               ),
 
               Padding(
-                padding: EdgeInsets.only(
-                  bottom: mq.viewPadding.bottom + 16,
+                padding: const EdgeInsets.only(
+                  bottom: 10,
                   top: 12,
                 ),
                 child: PrimaryButton(

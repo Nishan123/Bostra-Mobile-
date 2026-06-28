@@ -12,8 +12,8 @@ final portfolioViewModelProvider =
 );
 
 class PortfolioViewModel extends Notifier<PortfolioState> {
-  late final InvestmentController _investmentController;
-  late final GeminiController _geminiController;
+  late InvestmentController _investmentController;
+  late GeminiController _geminiController;
 
   @override
   PortfolioState build() {

@@ -6,9 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:image_picker/image_picker.dart';
 
-/// Grid-style cover image picker — 1 large primary slot + 3 stacked secondary
-/// slots. Slots fill sequentially. All picked files are surfaced via
-/// [onImagesChanged].
 class CoverImagePicker extends StatefulWidget {
   final List<String>? initialImagePaths;
   final ValueChanged<List<File>>? onImagesChanged;
@@ -25,6 +22,10 @@ class CoverImagePicker extends StatefulWidget {
 
 class _CoverImagePickerState extends State<CoverImagePicker> {
   static const int _maxSlots = 4;
+  static const double _gap = 5;
+  static const double _outerRadius = 16; // the 4 absolute outer corners
+  static const double _innerRadius = 5; // corners adjacent to another box
+
   final List<File?> _images = List.filled(_maxSlots, null, growable: false);
   final ImagePicker _picker = ImagePicker();
 
@@ -64,49 +65,74 @@ class _CoverImagePickerState extends State<CoverImagePicker> {
     widget.onImagesChanged?.call(_images.whereType<File>().toList());
   }
 
+  /// A distinct light fill for each slot so the boxes read as separate.
+  Color _fillFor(int index) {
+    switch (index) {
+      case 0:
+        return AppColors.primaryColor.withAlpha(22);
+      case 1:
+        return AppColors.blueColor.withAlpha(18);
+      case 2:
+        return AppColors.yelloColor.withAlpha(28);
+      default:
+        return AppColors.secondryColor.withAlpha(20);
+    }
+  }
+
+  BorderRadius _radiusFor(int index) {
+    const outer = Radius.circular(_outerRadius);
+    const inner = Radius.circular(_innerRadius);
+    switch (index) {
+      case 0: // left box: outer on the left edge, inner on the right
+        return const BorderRadius.only(
+          topLeft: outer,
+          bottomLeft: outer,
+          topRight: inner,
+          bottomRight: inner,
+        );
+      case 1: // top-right box: outer only at top-right
+        return const BorderRadius.only(
+          topRight: outer,
+          topLeft: inner,
+          bottomLeft: inner,
+          bottomRight: inner,
+        );
+      case 3: // bottom-right box: outer only at bottom-right
+        return const BorderRadius.only(
+          bottomRight: outer,
+          topLeft: inner,
+          topRight: inner,
+          bottomLeft: inner,
+        );
+      default: // middle-right box: fully interior
+        return const BorderRadius.all(inner);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // The outer Container owns the border + borderRadius so the frame is always
-    // visible regardless of what's inside (empty slots or filled images).
-    // The inner ClipRRect clips content to match, and the ColoredBox background
-    // shows through the 2 px gaps between slots, acting as grid dividers.
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
+      child: SizedBox(
         height: 220,
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: AppColors.primaryColor.withAlpha(130),
-            width: 1.5,
-          ),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: ClipRRect(
-          // Subtract border width so content sits flush inside the stroke.
-          borderRadius: BorderRadius.circular(14.5),
-          child: ColoredBox(
-            // This background peeks through the 2 px gaps as grid dividers.
-            color: AppColors.primaryColor.withAlpha(90),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(flex: 3, child: _buildSlot(0, isMain: true)),
-                const SizedBox(width: 2),
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    children: [
-                      Expanded(child: _buildSlot(1)),
-                      const SizedBox(height: 2),
-                      Expanded(child: _buildSlot(2)),
-                      const SizedBox(height: 2),
-                      Expanded(child: _buildSlot(3)),
-                    ],
-                  ),
-                ),
-              ],
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(flex: 3, child: _buildSlot(0, isMain: true)),
+            const SizedBox(width: _gap),
+            Expanded(
+              flex: 2,
+              child: Column(
+                children: [
+                  Expanded(child: _buildSlot(1)),
+                  const SizedBox(height: _gap),
+                  Expanded(child: _buildSlot(2)),
+                  const SizedBox(height: _gap),
+                  Expanded(child: _buildSlot(3)),
+                ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -120,12 +146,15 @@ class _CoverImagePickerState extends State<CoverImagePicker> {
         ? _FilledSlot(
             image: image,
             isMain: isMain,
+            borderRadius: _radiusFor(index),
             onRemove: () => _removeImage(index),
             onTap: () => _pickImage(index),
           )
         : _EmptySlot(
             isMain: isMain,
             isEnabled: isEnabled,
+            fillColor: _fillFor(index),
+            borderRadius: _radiusFor(index),
             onTap: isEnabled ? () => _pickImage(index) : null,
           );
   }
@@ -136,11 +165,15 @@ class _CoverImagePickerState extends State<CoverImagePicker> {
 class _EmptySlot extends StatelessWidget {
   final bool isMain;
   final bool isEnabled;
+  final Color fillColor;
+  final BorderRadius borderRadius;
   final VoidCallback? onTap;
 
   const _EmptySlot({
     required this.isMain,
     required this.isEnabled,
+    required this.fillColor,
+    required this.borderRadius,
     this.onTap,
   });
 
@@ -155,10 +188,14 @@ class _EmptySlot extends StatelessWidget {
       child: Container(
         width: double.infinity,
         height: double.infinity,
-        // No inner border — the outer Container + ColoredBox gaps handle framing.
-        color: isEnabled
-            ? AppColors.primaryColor.withAlpha(18)
-            : AppColors.primaryColor.withAlpha(8),
+        decoration: BoxDecoration(
+          color: isEnabled ? fillColor : AppColors.blackColor.withAlpha(8),
+          borderRadius: borderRadius,
+          border: Border.all(
+            color: AppColors.blackColor.withAlpha(isEnabled ? 45 : 25),
+            width: 1,
+          ),
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -195,12 +232,14 @@ class _EmptySlot extends StatelessWidget {
 class _FilledSlot extends StatelessWidget {
   final File image;
   final bool isMain;
+  final BorderRadius borderRadius;
   final VoidCallback onRemove;
   final VoidCallback onTap;
 
   const _FilledSlot({
     required this.image,
     required this.isMain,
+    required this.borderRadius,
     required this.onRemove,
     required this.onTap,
   });
@@ -209,54 +248,66 @@ class _FilledSlot extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.file(image, fit: BoxFit.cover),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: borderRadius,
+          border: Border.all(
+            color: AppColors.blackColor.withAlpha(45),
+            width: 1,
+          ),
+        ),
+        child: ClipRRect(
+          borderRadius: borderRadius,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Image.file(image, fit: BoxFit.cover),
 
-          if (isMain)
-            Positioned(
-              top: 8,
-              left: 8,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryColor,
-                  borderRadius: BorderRadius.circular(6),
+              if (isMain)
+                Positioned(
+                  top: 8,
+                  left: 8,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryColor,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      'Cover',
+                      style: AppTextStyle.bodyText3.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ),
                 ),
-                child: Text(
-                  'Cover',
-                  style: AppTextStyle.bodyText3.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 10,
+
+              Positioned(
+                top: 6,
+                right: 6,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onRemove,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withAlpha(170),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      LucideIcons.x,
+                      color: Colors.white,
+                      size: isMain ? 14 : 11,
+                    ),
                   ),
                 ),
               ),
-            ),
-
-          Positioned(
-            top: 6,
-            right: 6,
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: onRemove,
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: Colors.black.withAlpha(170),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  LucideIcons.x,
-                  color: Colors.white,
-                  size: isMain ? 14 : 11,
-                ),
-              ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -125,6 +125,26 @@ class UserController {
     }
   }
 
+  /// Fetches the currently authenticated user's row from the users table.
+  Future<Either<Failure, UserModel?>> getCurrentUser() async {
+    try {
+      final authUserId = _supabase.auth.currentUser?.id;
+      if (authUserId == null) {
+        return const Left(ApiFailure(message: 'No authenticated user found.'));
+      }
+      final response = await _supabase
+          .from(TableNames.usersTable)
+          .select()
+          .eq('id', authUserId)
+          .maybeSingle();
+
+      if (response == null) return const Right(null);
+      return Right(UserModel.fromJson(response));
+    } catch (e) {
+      return Left(ApiFailure(message: 'Failed to fetch current user: $e'));
+    }
+  }
+
   /// Fetches a user record by phone number. Returns null if not found.
   Future<Either<Failure, UserModel?>> getUserByPhone(String phone) async {
     try {

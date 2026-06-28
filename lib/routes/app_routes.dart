@@ -1,11 +1,17 @@
 import 'dart:async';
 import 'package:bostra/constants/table_names.dart';
 import 'package:bostra/models/campaign_model.dart';
+import 'package:bostra/models/company_model.dart';
 import 'package:bostra/ui/auth/login_screen.dart';
 import 'package:bostra/ui/auth/otp_screen.dart';
 import 'package:bostra/ui/auth/user_details_screen.dart';
+import 'package:bostra/ui/company/company_detail_screen.dart';
+import 'package:bostra/ui/company/my_companies_screen.dart';
+import 'package:bostra/ui/company/register_company_screen.dart';
 import 'package:bostra/ui/fund_startup/fund_startup_screen.dart';
 import 'package:bostra/ui/main/main_screen.dart';
+import 'package:bostra/ui/manage_campaign/manage_campaign_screen.dart';
+import 'package:bostra/ui/notifications/notifications_screen.dart';
 import 'package:bostra/ui/startup_details/startup_details.dart';
 import 'package:bostra/ui/start_campain/start_campain1.dart';
 import 'package:bostra/ui/start_campain/start_campain2.dart';
@@ -95,6 +101,37 @@ class AppRoutes {
         builder: (context, state) {
           final campaign = state.extra as CampaignModel;
           return FundStartupScreen(campaign: campaign);
+        },
+      ),
+      GoRoute(
+        path: '/my-companies',
+        name: 'myCompanies',
+        builder: (context, state) => const MyCompaniesScreen(),
+      ),
+      GoRoute(
+        path: '/register-company',
+        name: 'registerCompany',
+        builder: (context, state) => const RegisterCompanyScreen(),
+      ),
+      GoRoute(
+        path: '/company-detail',
+        name: 'companyDetail',
+        builder: (context, state) {
+          final company = state.extra as CompanyModel;
+          return CompanyDetailScreen(company: company);
+        },
+      ),
+      GoRoute(
+        path: '/notifications',
+        name: 'notifications',
+        builder: (context, state) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: '/manage-campaign',
+        name: 'manageCampaign',
+        builder: (context, state) {
+          final campaign = state.extra as CampaignModel;
+          return ManageCampaignScreen(campaign: campaign);
         },
       ),
       GoRoute(

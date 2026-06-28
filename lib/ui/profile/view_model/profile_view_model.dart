@@ -7,7 +7,7 @@ final profileViewModelProvider =
     NotifierProvider.autoDispose<ProfileViewModel, ProfileState>(ProfileViewModel.new);
 
 class ProfileViewModel extends AutoDisposeNotifier<ProfileState> {
-  late final UserController _userController;
+  late UserController _userController;
 
   @override
   ProfileState build() {

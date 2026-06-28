@@ -14,7 +14,7 @@ class MyInvestmentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final campaign = investment.campaign;
     
-    final status = campaign?.status ?? InvestmentStatus.stopped;
+    final status = campaign?.status ?? InvestmentStatus.initial;
 
     return Container(
       decoration: BoxDecoration(

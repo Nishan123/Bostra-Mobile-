@@ -6,12 +6,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final campaignViewModelProvider = NotifierProvider<StartCampaignViewModel, CampaignState>(StartCampaignViewModel.new);
 
 class StartCampaignViewModel extends Notifier<CampaignState> {
-  late final CampaignController _campaignController;
+  late CampaignController _campaignController;
 
   @override
   CampaignState build() {
     _campaignController = ref.read(campaignControllerProvider);
     return const CampaignState();
+  }
+
+  /// Begins a fresh campaign draft scoped to [companyId]. Every campaign is
+  /// launched under a company, so the id is seeded here and preserved through
+  /// all four steps via copyWith.
+  void startForCompany(String companyId) {
+    state = CampaignState(
+      campaign: CampaignModel(companyId: companyId),
+    );
   }
 
   void updateStartupName(String name) {
@@ -130,6 +139,15 @@ class StartCampaignViewModel extends Notifier<CampaignState> {
   void updateTargetAmount(double amount) {
     state = state.copyWith(
       campaign: state.campaign.copyWith(targetAmount: amount),
+    );
+  }
+
+  /// Funding due date (deadline). Stored at the end of the chosen day so the
+  /// campaign stays fundable through the whole due date.
+  void updateEndDate(DateTime date) {
+    final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
+    state = state.copyWith(
+      campaign: state.campaign.copyWith(endDate: endOfDay),
     );
   }
 

@@ -140,7 +140,7 @@ class HomeCard extends ConsumerWidget {
                       avatarSize: 40,
                     ),
                     const Spacer(),
-                    InfoChip(text: '${campaign.totalInvestors} investors'),
+                    InfoChip(text: campaign.fundingCountdownLabel),
                   ],
                 ),
               ],

@@ -8,7 +8,7 @@ final getCampaignViewModelProvider =
 );
 
 class GetCampaignViewModel extends Notifier<GetCampaignState> {
-  late final CampaignController _campaignController;
+  late CampaignController _campaignController;
 
   @override
   GetCampaignState build() {

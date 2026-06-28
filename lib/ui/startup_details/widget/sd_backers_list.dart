@@ -2,6 +2,7 @@ import 'package:bostra/controllers/investment_controller.dart';
 import 'package:bostra/models/backer_model.dart';
 import 'package:bostra/theme/app_colors.dart';
 import 'package:bostra/theme/app_text_style.dart';
+import 'package:bostra/widgets/widget_title.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lucide/flutter_lucide.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -47,7 +48,7 @@ class SdBackersList extends ConsumerWidget {
                 TextButton(
                   onPressed: () {},
                   child: Text(
-                    'See All  ∨',
+                    'See All',
                     style: TextStyle(
                       color: AppColors.primaryColor,
                       fontWeight: FontWeight.w600,
@@ -73,7 +74,10 @@ class SdBackersList extends ConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Backers till now', style: AppTextStyle.h4),
+              WidgetTitle(
+                text: "Backers till now",
+                padding: EdgeInsets.only(left: 0, bottom: 4),
+              ),
               TextButton(
                 onPressed: () {},
                 style: TextButton.styleFrom(
@@ -111,7 +115,7 @@ class _BackerTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         border: Border.all(width: 0.6, color: AppColors.black10),
       ),
-      padding:  EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       margin: EdgeInsets.only(left: 14, right: 14, bottom: 8),
       child: Row(
         children: [
@@ -145,7 +149,9 @@ class _BackerTile extends StatelessWidget {
           Expanded(
             child: Text(
               backer.displayName,
-              style: AppTextStyle.bodyText1.copyWith(fontWeight: FontWeight.bold),
+              style: AppTextStyle.bodyText1.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -157,7 +163,6 @@ class _BackerTile extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.primaryColor,
               borderRadius: BorderRadius.circular(4),
-          
             ),
             child: Text(
               'Rs ${backer.amount.toStringAsFixed(0)}',

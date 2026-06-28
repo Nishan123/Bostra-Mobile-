@@ -4,8 +4,7 @@ import 'package:bostra/theme/app_text_style.dart';
 import 'package:flutter/material.dart';
 
 /// A flat card for a single month projection — matches the design screenshot:
-/// shows the month badge + label in a header row, then the content text
-/// (objectives/goals/initiative) directly below, with a "Read More" inline link.
+/// features a full-width teal header bar with uniform borders and a clean flat structure.
 class SdMonthProjectionCard extends StatefulWidget {
   final MonthProjection projection;
   const SdMonthProjectionCard({super.key, required this.projection});
@@ -25,75 +24,77 @@ class _SdMonthProjectionCardState extends State<SdMonthProjectionCard> {
         .join(' ');
   }
 
+
   @override
   Widget build(BuildContext context) {
     final content = _fullContent;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(
-          color: AppColors.blackColor.withAlpha(25),
-          width: 0.8,
-        ),
-        borderRadius: BorderRadius.circular(12),
-      ),
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Month badge + label row ────────────────────────────────────
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryColor.withAlpha(22),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
+          // ── Header Bar ───────────────────────────────────────────────
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppColors.primaryColor,
+              borderRadius: const BorderRadius.all(
+                Radius.circular(8),
+              ),
+            ),
+            child: Row(
+              children: [
+                Text(
                   'Month ${mp.monthNumber}',
-                  style: TextStyle(
-                    color: AppColors.primaryColor,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13,
+                  style: AppTextStyle.bodyText2.copyWith(color:AppColors.whiteColor,fontWeight: FontWeight.w600),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Container(
+                      height: 1,
+                      color: AppColors.whiteColor
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Text(
-                mp.monthLabel,
-                style: AppTextStyle.bodyText2,
-              ),
-            ],
+                Text(
+                  mp.monthLabel,
+                  style: AppTextStyle.bodyText2.copyWith(color: AppColors.whiteColor)
+                ),
+              ],
+            ),
           ),
 
-          if (content.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            // ── Content text + inline Read More ──────────────────────────
-            Text(
-              content,
-              style: AppTextStyle.bodyText2.copyWith(
-                color: AppColors.blackColor.withAlpha(160),
-                height: 1.55,
+          // ── Content Area ─────────────────────────────────────────────
+          if (content.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 8, 4, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    content,
+                    style: AppTextStyle.bodyText1,
+                    maxLines: _expanded ? null : 4,
+                    overflow: _expanded ? null : TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 10),
+                  GestureDetector(
+                    onTap: () => setState(() => _expanded = !_expanded),
+                    child: Text(
+                      _expanded ? 'Show Less' : 'Read More',
+                      style: const TextStyle(
+                        color: Colors.blue, // Primary interactive action accent
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              maxLines: _expanded ? null : 4,
-              overflow: _expanded ? null : TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 4),
-            GestureDetector(
-              onTap: () => setState(() => _expanded = !_expanded),
-              child: Text(
-                _expanded ? 'Show Less' : 'Read More',
-                style: TextStyle(
-                  color: AppColors.primaryColor,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
-              ),
-            ),
-          ],
         ],
       ),
     );
