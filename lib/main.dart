@@ -15,8 +15,7 @@ Future<void> main() async {
   try {
     await dotenv.load(fileName: '.env');
   } catch (_) {
-    // .env not bundled — fall through. GeminiConfig.apiKey degrades to ''
-    // so the AI summary just prompts the user to add a key.
+    debugPrint("error loading .env file");
   }
 
   await Supabase.initialize(

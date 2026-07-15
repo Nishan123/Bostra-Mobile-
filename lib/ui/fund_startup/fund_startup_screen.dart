@@ -1,9 +1,12 @@
 import 'package:bostra/controllers/investment_controller.dart';
+import 'package:bostra/controllers/reward_controller.dart';
 import 'package:bostra/models/campaign_model.dart';
+import 'package:bostra/models/reward_tier_model.dart';
 import 'package:bostra/theme/app_colors.dart';
 import 'package:bostra/theme/app_text_style.dart';
 import 'package:bostra/ui/fund_startup/state/fund_startup_state.dart';
 import 'package:bostra/ui/fund_startup/view_model/fund_startup_view_model.dart';
+import 'package:bostra/ui/fund_startup/widgets/investment_reward_summary.dart';
 import 'package:bostra/ui/investment/view_model/investment_tab_view_model.dart';
 import 'package:bostra/ui/payment/widgets/payment_bottom_sheet.dart';
 import 'package:bostra/widgets/primary_button.dart';
@@ -79,7 +82,7 @@ class _FundStartupScreenState extends ConsumerState<FundStartupScreen> {
           ),
         ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,7 +265,12 @@ class _FundStartupScreenState extends ConsumerState<FundStartupScreen> {
               ),
             ],
 
-            const Spacer(),
+            const SizedBox(height: 20),
+
+            // ── Live reward summary (what this investment unlocks) ──────────
+            InvestmentRewardSummary(campaign: c, amount: state.amount ?? 0),
+
+            const SizedBox(height: 24),
           ],
         ),
       ),
@@ -335,6 +343,14 @@ class _FundStartupScreenState extends ConsumerState<FundStartupScreen> {
   }
 
   void _showSuccess(BuildContext context) {
+    // Compute the rewards this investment unlocked (client-side, instant) so
+    // the confirmation can show them without waiting for the DB snapshot.
+    final amount = ref.read(fundStartupViewModelProvider(_campaignId)).amount ?? 0;
+    final tiers = ref.read(rewardTiersProvider(_campaignId)).asData?.value ??
+        const <RewardTierModel>[];
+    final unlocked =
+        RewardTierModel.unlockedTiers(tiers, amount, c.targetAmount);
+
     showDialog<void>(
       context: context,
       barrierDismissible: false,
@@ -365,6 +381,50 @@ class _FundStartupScreenState extends ConsumerState<FundStartupScreen> {
               style: AppTextStyle.bodyText2,
               textAlign: TextAlign.center,
             ),
+
+            // ── Rewards earned ─────────────────────────────────────────────
+            if (unlocked.isNotEmpty) ...[
+              const SizedBox(height: 18),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColor.withAlpha(14),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Rewards earned',
+                        style: AppTextStyle.bodyText2.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.primaryColor,
+                        )),
+                    const SizedBox(height: 8),
+                    for (final tier in unlocked)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Row(
+                          children: [
+                            Icon(tier.rewardType.icon,
+                                size: 16, color: AppColors.primaryColor),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                tier.title.isNotEmpty
+                                    ? tier.title
+                                    : tier.typeLabel,
+                                style: AppTextStyle.bodyText2,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+
             const SizedBox(height: 20),
             PrimaryButton(
               text: 'Done',
@@ -374,6 +434,8 @@ class _FundStartupScreenState extends ConsumerState<FundStartupScreen> {
                 // flips to "Add More Funding" immediately.
                 ref.invalidate(hasInvestedProvider(_campaignId));
                 ref.invalidate(campaignBackersProvider(_campaignId));
+                // Refresh earned rewards so the details screen reflects them.
+                ref.invalidate(myCampaignRewardsProvider(_campaignId));
                 Navigator.of(context).pop(); // close dialog
                 Navigator.of(context).pop(); // pop fund screen
               },

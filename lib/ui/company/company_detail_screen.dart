@@ -155,7 +155,7 @@ class _CompanyDetailScreenState extends ConsumerState<CompanyDetailScreen> {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.only(bottom: 32),
         children: [
-          CompanyHeader(company: company),
+          CompanyHeader(company: company, founders: state.activeFounders),
           const SizedBox(height: 8),
           FoundersSection(
             state: state,

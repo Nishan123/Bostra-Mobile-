@@ -1,5 +1,7 @@
 import 'package:bostra/controllers/campaign_controller.dart';
+import 'package:bostra/controllers/reward_controller.dart';
 import 'package:bostra/models/campaign_model.dart';
+import 'package:bostra/models/reward_tier_model.dart';
 import 'package:bostra/ui/start_campain/state/campaign_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -7,10 +9,12 @@ final campaignViewModelProvider = NotifierProvider<StartCampaignViewModel, Campa
 
 class StartCampaignViewModel extends Notifier<CampaignState> {
   late CampaignController _campaignController;
+  late RewardController _rewardController;
 
   @override
   CampaignState build() {
     _campaignController = ref.read(campaignControllerProvider);
+    _rewardController = ref.read(rewardControllerProvider);
     return const CampaignState();
   }
 
@@ -157,6 +161,34 @@ class StartCampaignViewModel extends Notifier<CampaignState> {
     );
   }
 
+  // ── Investor reward tiers ───────────────────────────────────────────────────
+
+  void addRewardTier(RewardTierModel tier) {
+    state = state.copyWith(rewardTiers: [...state.rewardTiers, tier]);
+  }
+
+  void updateRewardTier(int index, RewardTierModel tier) {
+    if (index < 0 || index >= state.rewardTiers.length) return;
+    final list = [...state.rewardTiers];
+    list[index] = tier;
+    state = state.copyWith(rewardTiers: list);
+  }
+
+  void removeRewardTier(int index) {
+    if (index < 0 || index >= state.rewardTiers.length) return;
+    final list = [...state.rewardTiers]..removeAt(index);
+    state = state.copyWith(rewardTiers: list);
+  }
+
+  /// Reorders a tier from [oldIndex] to [newIndex] (ReorderableListView semantics).
+  void reorderRewardTiers(int oldIndex, int newIndex) {
+    final list = [...state.rewardTiers];
+    if (newIndex > oldIndex) newIndex -= 1;
+    final moved = list.removeAt(oldIndex);
+    list.insert(newIndex, moved);
+    state = state.copyWith(rewardTiers: list);
+  }
+
   Future<bool> submitCampaign() async {
     state = state.copyWith(status: CampaignStatus.loading, errorMessage: null);
 
@@ -252,20 +284,48 @@ class StartCampaignViewModel extends Notifier<CampaignState> {
 
       final result = await _campaignController.createCampaign(campaign);
 
-      return result.fold(
-        (failure) {
+      return await result.fold(
+        (failure) async {
           state = state.copyWith(
             status: CampaignStatus.error,
             errorMessage: failure.errorMessage,
           );
           return false;
         },
-        (savedCampaign) {
-          state = state.copyWith(
-            status: CampaignStatus.success,
-            campaign: savedCampaign,
+        (savedCampaign) async {
+          final campaignId = savedCampaign.id;
+          if (campaignId == null || campaignId.isEmpty) {
+            state = state.copyWith(
+              status: CampaignStatus.error,
+              errorMessage: 'Campaign was created without an id.',
+            );
+            return false;
+          }
+
+          // Persist investor reward tiers into their own table (upload any
+          // local tier images first). Snapshots for investors are created
+          // automatically at investment time by a DB trigger.
+          final tiers = await _uploadTierImages(state.rewardTiers);
+          final tierResult =
+              await _rewardController.createTiersForCampaign(campaignId, tiers);
+
+          return tierResult.fold(
+            (failure) {
+              state = state.copyWith(
+                status: CampaignStatus.error,
+                errorMessage:
+                    'Campaign saved, but rewards failed: ${failure.errorMessage}',
+              );
+              return false;
+            },
+            (_) {
+              state = state.copyWith(
+                status: CampaignStatus.success,
+                campaign: savedCampaign,
+              );
+              return true;
+            },
           );
-          return true;
         },
       );
     } catch (e) {
@@ -275,6 +335,27 @@ class StartCampaignViewModel extends Notifier<CampaignState> {
       );
       return false;
     }
+  }
+
+  /// Uploads any locally-picked tier images and swaps in their public URLs.
+  Future<List<RewardTierModel>> _uploadTierImages(
+    List<RewardTierModel> tiers,
+  ) async {
+    final result = <RewardTierModel>[];
+    for (final tier in tiers) {
+      if (tier.imageUrl != null &&
+          tier.imageUrl!.isNotEmpty &&
+          _isLocalFile(tier.imageUrl!)) {
+        final url = await _campaignController.uploadCampaignFile(
+          filePath: tier.imageUrl!,
+          folderName: 'rewards',
+        );
+        result.add(tier.copyWith(imageUrl: url));
+      } else {
+        result.add(tier);
+      }
+    }
+    return result;
   }
 
   bool _isLocalFile(String path) {

@@ -30,7 +30,7 @@ class StartCampain3 extends ConsumerWidget {
                     // Progress indicator
                     const StartCampainProgress(
                       currentStep: 3,
-                      totalSteps: 4,
+                      totalSteps: 5,
                     ),
 
                     const SizedBox(height: 16),

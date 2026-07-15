@@ -62,17 +62,18 @@ class ProfileScreen extends ConsumerWidget {
       body: isLoadingProfile
           ? const Center(child: CircularProgressIndicator())
           : profileState.status == ProfileStatus.error
-              ? _ErrorState(
-                  message: profileState.errorMessage ?? 'Failed to load profile.',
-                  onRetry: () =>
-                      ref.read(profileViewModelProvider.notifier).fetchCurrentUser(),
-                )
-              : _ProfileBody(
-                  authState: authState,
-                  ref: ref,
-                  user: user,
-                  companiesState: companiesState,
-                ),
+          ? _ErrorState(
+              message: profileState.errorMessage ?? 'Failed to load profile.',
+              onRetry: () => ref
+                  .read(profileViewModelProvider.notifier)
+                  .fetchCurrentUser(),
+            )
+          : _ProfileBody(
+              authState: authState,
+              ref: ref,
+              user: user,
+              companiesState: companiesState,
+            ),
     );
   }
 }
@@ -110,10 +111,12 @@ class _ProfileBody extends StatelessWidget {
           CircleAvatar(
             radius: 60,
             backgroundColor: AppColors.primaryColor.withAlpha(30),
-            backgroundImage: user?.profilePicUrl != null && user!.profilePicUrl!.isNotEmpty
+            backgroundImage:
+                user?.profilePicUrl != null && user!.profilePicUrl!.isNotEmpty
                 ? NetworkImage(user!.profilePicUrl!)
                 : null,
-            child: user?.profilePicUrl != null && user!.profilePicUrl!.isNotEmpty
+            child:
+                user?.profilePicUrl != null && user!.profilePicUrl!.isNotEmpty
                 ? null
                 : Text(
                     fullName.isNotEmpty ? fullName[0].toUpperCase() : '?',
@@ -124,6 +127,9 @@ class _ProfileBody extends StatelessWidget {
                     ),
                   ),
           ),
+          SizedBox(height: 4),
+          Text("Click to edit", style: AppTextStyle.bodyText3),
+
           const SizedBox(height: 8),
 
           // Name
@@ -135,15 +141,18 @@ class _ProfileBody extends StatelessWidget {
 
           // Info rows
           _InfoTile(icon: LucideIcons.phone, label: 'Phone', value: phone),
-          _InfoTile(icon: LucideIcons.calendar, label: 'Date of Birth', value: dob),
-          _InfoTile(icon: LucideIcons.map_pin, label: 'Address', value: address),
-
-          Divider(
-            thickness: 0.6,
-            endIndent: 12,
-            indent: 12,
-            height: 28,
+          _InfoTile(
+            icon: LucideIcons.calendar,
+            label: 'Date of Birth',
+            value: dob,
           ),
+          _InfoTile(
+            icon: LucideIcons.map_pin,
+            label: 'Address',
+            value: address,
+          ),
+
+          Divider(thickness: 0.6, endIndent: 12, indent: 12, height: 28),
 
           // Stat Cards
           Padding(
@@ -200,8 +209,7 @@ class _ProfileBody extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: 12),
             backgroundColor: AppColors.redColor,
             text: "Log Out",
-            onTap: () =>
-                ref.read(authViewModelProvider.notifier).signOut(),
+            onTap: () => ref.read(authViewModelProvider.notifier).signOut(),
             isLoading: authState.status == AuthStatus.loading,
           ),
 
@@ -236,8 +244,7 @@ class _ProfileBody extends StatelessWidget {
             for (final company in companiesState.companies)
               _ProfileCompanyTile(
                 company: company,
-                onTap: () =>
-                    context.pushNamed('companyDetail', extra: company),
+                onTap: () => context.pushNamed('companyDetail', extra: company),
               ),
           ],
         );
@@ -274,7 +281,7 @@ class _ProfileCompanyTile extends StatelessWidget {
         child: Row(
           children: [
             CircleAvatar(
-              radius: 30,
+              radius: 24,
               backgroundColor: AppColors.blackColor.withAlpha(20),
               backgroundImage: hasLogo ? NetworkImage(company.logoUrl!) : null,
               child: hasLogo
@@ -305,8 +312,11 @@ class _ProfileCompanyTile extends StatelessWidget {
                       ),
                       if (company.isVerified) ...[
                         const SizedBox(width: 6),
-                        Icon(Icons.verified,
-                            color: AppColors.blueColor, size: 18),
+                        Icon(
+                          Icons.verified,
+                          color: AppColors.blueColor,
+                          size: 18,
+                        ),
                       ],
                     ],
                   ),
@@ -318,8 +328,11 @@ class _ProfileCompanyTile extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(LucideIcons.chevron_right,
-                color: AppColors.blackColor, size: 22),
+            Icon(
+              LucideIcons.chevron_right,
+              color: AppColors.blackColor,
+              size: 22,
+            ),
           ],
         ),
       ),
@@ -350,9 +363,7 @@ class _InfoTile extends StatelessWidget {
         children: [
           Icon(icon, size: 18, color: AppColors.primaryColor),
           const SizedBox(width: 12),
-          Expanded(
-            child: Text(value, style: AppTextStyle.bodyText1),
-          ),
+          Expanded(child: Text(value, style: AppTextStyle.bodyText1)),
         ],
       ),
     );
@@ -379,14 +390,13 @@ class _ErrorState extends StatelessWidget {
           children: [
             Icon(Icons.error_outline, size: 48, color: AppColors.redColor),
             const SizedBox(height: 12),
-            Text(message,
-                textAlign: TextAlign.center,
-                style: AppTextStyle.bodyText1),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: onRetry,
-              child: const Text('Retry'),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: AppTextStyle.bodyText1,
             ),
+            const SizedBox(height: 16),
+            ElevatedButton(onPressed: onRetry, child: const Text('Retry')),
           ],
         ),
       ),

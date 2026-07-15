@@ -65,7 +65,7 @@ class _StartCampain1State extends ConsumerState<StartCampain1> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Progress indicator
-                    const StartCampainProgress(currentStep: 1, totalSteps: 4),
+                    const StartCampainProgress(currentStep: 1, totalSteps: 5),
 
                     const SizedBox(height: 16),
 

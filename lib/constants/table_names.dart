@@ -8,4 +8,8 @@ class TableNames {
   static const String companiesTable = "companies";
   static const String companyFoundersTable = "company_founders";
   static const String companyLogosBucket = "company-logos";
+
+  // Investment rewards feature
+  static const String campaignRewardTiersTable = "campaign_reward_tiers";
+  static const String investmentRewardsTable = "investment_rewards";
 }

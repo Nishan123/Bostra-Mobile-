@@ -3,7 +3,6 @@ import 'package:bostra/theme/app_text_style.dart';
 import 'package:bostra/ui/start_campain/widgets/campain_app_bar.dart';
 import 'package:bostra/ui/start_campain/widgets/start_campain_progress.dart';
 import 'package:bostra/ui/start_campain/view_model/start_campaign_view_model.dart';
-import 'package:bostra/ui/start_campain/state/campaign_state.dart';
 import 'package:bostra/widgets/custom_snackbar.dart';
 import 'package:bostra/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
@@ -74,20 +73,6 @@ class _StartCampain4State extends ConsumerState<StartCampain4> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<CampaignState>(campaignViewModelProvider, (previous, next) {
-      if (next.status == CampaignStatus.success) {
-        CustomSnackBar.showSuccessSnackBar(context, "Campaign created successfully!");
-        ref.read(campaignViewModelProvider.notifier).resetStatus();
-        context.go('/main');
-      } else if (next.status == CampaignStatus.error) {
-        final message = next.errorMessage ?? "Failed to start campaign";
-        CustomSnackBar.showErrorSnackBar(context, message);
-        ref.read(campaignViewModelProvider.notifier).resetStatus();
-      }
-    });
-
-    final campaignState = ref.watch(campaignViewModelProvider);
-
     return Scaffold(
       appBar: CampainAppBar(),
       body: SafeArea(
@@ -99,7 +84,7 @@ class _StartCampain4State extends ConsumerState<StartCampain4> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Progress indicator
-                    const StartCampainProgress(currentStep: 4, totalSteps: 4),
+                    const StartCampainProgress(currentStep: 4, totalSteps: 5),
 
                     const SizedBox(height: 16),
 
@@ -273,11 +258,10 @@ class _StartCampain4State extends ConsumerState<StartCampain4> {
             ),
             const SizedBox(height: 12),
 
-            // Next button
+            // Next button → Investor Rewards step
             PrimaryButton(
               margin: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
               text: 'Next',
-              isLoading: campaignState.status == CampaignStatus.loading,
               onTap: () {
                 if (!_agreedToTerms) {
                   CustomSnackBar.showErrorSnackBar(
@@ -317,7 +301,9 @@ class _StartCampain4State extends ConsumerState<StartCampain4> {
                 notifier.updateTargetAmount(amount);
                 notifier.updateEndDate(_dueDate!);
                 notifier.updateAgreedToTerms(_agreedToTerms);
-                notifier.submitCampaign();
+
+                // Rewards are configured on the next (final) step before publish.
+                context.pushNamed('startCampaign5');
               },
             ),
           ],

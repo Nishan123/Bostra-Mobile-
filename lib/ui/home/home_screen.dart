@@ -1,11 +1,14 @@
 import 'package:bostra/constants/assets_path.dart';
 import 'package:bostra/enums/chips_options.dart';
+import 'package:bostra/models/campaign_filter.dart';
+import 'package:bostra/models/campaign_model.dart';
 import 'package:bostra/theme/app_colors.dart';
 import 'package:bostra/theme/app_text_style.dart';
 import 'package:bostra/ui/home/widgets/home_card.dart';
 import 'package:bostra/ui/home/widgets/home_chips.dart';
-import 'package:bostra/ui/home/widgets/home_search_bar.dart';
 import 'package:bostra/ui/notifications/view_model/invitations_view_model.dart';
+import 'package:bostra/ui/search/widgets/app_search_bar.dart';
+import 'package:bostra/widgets/campaign_filter_sheet.dart';
 import 'package:bostra/ui/start_campain/state/campaign_state.dart';
 import 'package:bostra/ui/start_campain/view_model/get_campaign_view_model.dart';
 import 'package:flutter/material.dart';
@@ -23,13 +26,23 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
-  ChipsOptions _selectedCategory = ChipsOptions.all;
+  CampaignFilter _filter = const CampaignFilter();
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _openFilter(List<CampaignModel> source) async {
+    final result = await showCampaignFilterSheet(
+      context,
+      current: _filter,
+      source: source,
+    );
+    if (result != null && mounted) {
+      setState(() => _filter = result);
+    }
   }
 
   @override
@@ -71,27 +84,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         );
 
       case CampaignStatus.success:
-        var filteredCampaigns = state.campaigns;
-
-        // Filter by category chip
-        if (_selectedCategory != ChipsOptions.all) {
-          filteredCampaigns = filteredCampaigns.where((campaign) =>
-              campaign.industry.trim().toLowerCase() ==
-              _selectedCategory.text.trim().toLowerCase()).toList();
-        }
-
-        // Filter by search query
-        if (_searchQuery.isNotEmpty) {
-          final query = _searchQuery.toLowerCase();
-          filteredCampaigns = filteredCampaigns.where((campaign) =>
-              campaign.startupName.toLowerCase().contains(query) ||
-              campaign.shortTagline.toLowerCase().contains(query)).toList();
-        }
+        // Apply the active filter (industry + amount requested).
+        final filteredCampaigns = _filter.apply(state.campaigns);
 
         if (filteredCampaigns.isEmpty) {
           body = centeredScrollable(
-            const Text(
-              'No campaigns available right now.',
+            Text(
+              _filter.isActive
+                  ? 'No campaigns match your filters.'
+                  : 'No campaigns available right now.',
               textAlign: TextAlign.center,
             ),
           );
@@ -130,24 +131,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           children: [
             // ── Fixed header ──────────────────────────────────────────────
             const SizedBox(height: 12),
-            HomeSearchBar(
-              controller: _searchController,
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value;
-                });
-              },
-              onFilterTap: () {},
+            // Tapping the bar opens the dedicated search screen; the field
+            // animates up into place via a shared Hero.
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              child: AppSearchBar(
+                controller: _searchController,
+                readOnly: true,
+                onTap: () => context.push('/search'),
+                onFilterTap: () => _openFilter(state.campaigns),
+                filterActive: _filter.isActive,
+              ),
             ),
             const SizedBox(height: 14),
             HomeChips(
               values: ChipsOptions.values,
               labelBuilder: (options) => options.text,
               iconBuilder: null,
-              selectedValue: _selectedCategory,
+              selectedValue: _filter.industry,
               onSelected: (category) {
                 setState(() {
-                  _selectedCategory = category;
+                  _filter = _filter.copyWith(industry: category);
                 });
               },
             ),

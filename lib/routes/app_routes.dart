@@ -12,11 +12,14 @@ import 'package:bostra/ui/fund_startup/fund_startup_screen.dart';
 import 'package:bostra/ui/main/main_screen.dart';
 import 'package:bostra/ui/manage_campaign/manage_campaign_screen.dart';
 import 'package:bostra/ui/notifications/notifications_screen.dart';
+import 'package:bostra/ui/search/search_screen.dart';
+import 'package:bostra/ui/search/search_results_screen.dart';
 import 'package:bostra/ui/startup_details/startup_details.dart';
 import 'package:bostra/ui/start_campain/start_campain1.dart';
 import 'package:bostra/ui/start_campain/start_campain2.dart';
 import 'package:bostra/ui/start_campain/start_campain3.dart';
 import 'package:bostra/ui/start_campain/start_campain4.dart';
+import 'package:bostra/ui/start_campain/start_campain5.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -127,6 +130,19 @@ class AppRoutes {
         builder: (context, state) => const NotificationsScreen(),
       ),
       GoRoute(
+        path: '/search',
+        name: 'search',
+        builder: (context, state) => const SearchScreen(),
+      ),
+      GoRoute(
+        path: '/search-results',
+        name: 'searchResults',
+        builder: (context, state) {
+          final query = state.extra as String? ?? '';
+          return SearchResultsScreen(query: query);
+        },
+      ),
+      GoRoute(
         path: '/manage-campaign',
         name: 'manageCampaign',
         builder: (context, state) {
@@ -153,6 +169,11 @@ class AppRoutes {
         path: '/start-campaign-4',
         name: 'startCampaign4',
         builder: (context, state) => const StartCampain4(),
+      ),
+      GoRoute(
+        path: '/start-campaign-5',
+        name: 'startCampaign5',
+        builder: (context, state) => const StartCampain5(),
       ),
     ],
   );

@@ -12,6 +12,7 @@ import 'package:bostra/ui/startup_details/widget/sd_funding_header.dart';
 import 'package:bostra/ui/startup_details/widget/sd_investment_details.dart';
 import 'package:bostra/ui/startup_details/widget/sd_month_projection_card.dart';
 import 'package:bostra/ui/startup_details/widget/sd_pitch_video_thumbnail.dart';
+import 'package:bostra/ui/startup_details/widget/sd_reward_tiers.dart';
 import 'package:bostra/ui/startup_details/widget/sd_section.dart';
 import 'package:bostra/widgets/widget_title.dart';
 import 'package:flutter/material.dart';
@@ -97,6 +98,11 @@ class StartupDetailsScreen extends ConsumerWidget {
                         child: Text(c.description,style: AppTextStyle.bodyText1,)
                       ),
                     ],
+
+                    const SizedBox(height: 4),
+
+                    // ── Investor rewards (hidden when the campaign has none) ─
+                    SdRewardTiers(campaign: c),
 
                     const SizedBox(height: 4),
 
